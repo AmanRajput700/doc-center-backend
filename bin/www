@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-
+require('dotenv').config();
 /**
  * Module dependencies.
  */
@@ -7,6 +7,8 @@
 var app = require('../app');
 var debug = require('debug')('doc-center:server');
 var http = require('http');
+
+const connectToDb = require('../services/db.js');
 
 /**
  * Get port from environment and store in Express.
@@ -87,4 +89,5 @@ function onListening() {
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
+  connectToDb();
 }

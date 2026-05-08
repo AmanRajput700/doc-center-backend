@@ -1,0 +1,23 @@
+const ejs = require('ejs');
+const transporter = require('../../services/emailService');
+const path = require('path');
+const createHttpError = require('http-errors');
+
+module.exports = async (orgName, applicantFirstName, applicantLastName, email, verificationLink) => {
+    try {
+        const currentYear = new Date().getFullYear();
+        const data = { orgName, applicantFirstName, applicantLastName, currentYear, verificationLink };
+        const templatePath = path.join(__dirname, '../../views/tenantVerifyEmail.ejs');
+
+        const htmlContent = await ejs.renderFile(templatePath, data);
+        const info = await transporter.sendMail({
+            from: process.env.MAIL_ID,
+            to: email,
+            subject: "Email verification token",
+            text: "",
+            html: htmlContent,
+        });
+    } catch (err) {
+        throw new createHttpError(err);
+    }
+}
