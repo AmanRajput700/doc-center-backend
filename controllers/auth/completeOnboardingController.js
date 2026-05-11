@@ -4,6 +4,7 @@ const ERROR_MESSAGE = require('../../utils/constant');
 const crypto = require('node:crypto');
 const userSchema = require('../../models/tenant/userSchema');
 const mongoose = require('mongoose');
+const TenantUserMap = require('../../models/root/TenantUserMap');
 
 module.exports = async function (userData) {
     const { password, confirmPassword, token } = userData;
@@ -22,6 +23,12 @@ module.exports = async function (userData) {
         password,
         role: 'Admin',
         status: 'active',
+    });
+
+    await TenantUserMap.create({
+        email: tenant.applicant.email,
+        tenantId: tenant._id,
+        status: 'active'
     });
 
     tenant.status = 'active';
