@@ -18,7 +18,7 @@ module.exports = async function (userData) {
     const isValidUser = await user.comparePassword(password);
     if (!isValidUser) throw new createHttpError(createHttpError.Unauthorized, ERROR_MESSAGE.INVALID_CREDENTIALS);
 
-    const { refreshToken, accessToken } = await tokenGenrator(User, user._id);
+    const { refreshToken, accessToken } = await tokenGenrator(User, user._id, mapping);
     user.password = undefined;
     return { user, slug: mapping.tenantId.slug, refreshToken, accessToken };
 }

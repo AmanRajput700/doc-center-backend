@@ -57,13 +57,15 @@ userSchema.methods.comparePassword = async function (password) {
     return await bcrypt.compare(password, this.password);
 };
 
-userSchema.methods.generateAccessToken = function () {
+userSchema.methods.generateAccessToken = function (mapping) {
+
+    const payload = {
+        _id: this._id,
+        role: this.role,
+        tenantId: mapping.tenantId._id,
+    }
     return jwt.sign(
-        {
-            userId: this._id,
-            email: this.email,
-            role: this.role
-        },
+        payload,
         process.env.ACCESS_TOKEN_SECRET,
         {
             expiresIn: process.env.ACCESS_TOKEN_EXPIRY || '15m'

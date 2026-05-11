@@ -17,7 +17,24 @@ app.set('view engine', 'ejs');
 
 app.use(
   cors({
-    origin: "*",
+    origin: function (origin, callback) {
+
+      // allow requests with no origin
+      // like mobile apps or postman
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      const allowedPattern =
+        /^http:\/\/([a-zA-Z0-9-]+)\.192\.168\.100\.166\.nip\.io:5173$/;
+
+      if (allowedPattern.test(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+
     credentials: true,
   })
 );
