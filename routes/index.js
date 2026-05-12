@@ -5,4 +5,6 @@ var router = express.Router();
 router.use('/tenant', require('./tenant.routes'));
 router.use('/auth', require('./auth.routes'));
 
+
+
 module.exports = router;

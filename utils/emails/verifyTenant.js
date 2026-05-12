@@ -10,14 +10,19 @@ module.exports = async (orgName, applicantFirstName, applicantLastName, email, v
         const templatePath = path.join(__dirname, '../../views/tenantVerifyEmail.ejs');
 
         const htmlContent = await ejs.renderFile(templatePath, data);
-        const info = await transporter.sendMail({
-            from: process.env.MAIL_ID,
-            to: email,
-            subject: "Email verification token",
-            text: "",
-            html: htmlContent,
-        });
+        try {
+            const info = await transporter.sendMail({
+                from: process.env.MAIL_ID,
+                to: email,
+                subject: "Email verification token",
+                text: "",
+                html: htmlContent,
+            });
+        } catch (err) {
+            throw new createHttpError(422,"Invalid Email");
+        }
     } catch (err) {
+        console.log(err);
         throw new createHttpError(err);
     }
 }

@@ -7,7 +7,11 @@ const mongoose = require('mongoose');
 const Tenant = require('../models/root/Tenant');
 
 module.exports = asyncHandler(async function (req, res, next) {
-    const token = req.cookies?.accessToken;
+    const authHeader = req.headers.authorization;
+
+    const token = authHeader?.startsWith('Bearer ')
+        ? authHeader.split(' ')[1]
+        : null;
     console.log("token", token)
 
     if (!token) throw new createHttpError(createHttpError.Unauthorized, ERROR_MESSAGE.INVALID_USER);

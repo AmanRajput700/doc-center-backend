@@ -7,8 +7,11 @@ const tenantVerifyEmail = require('../../utils/emails/verifyTenant');
 module.exports = async function (tenantData) {
     const { orgName, orgSlogan, slug, logo, firstName, lastName, email } = tenantData;
 
-    const isTenantExists = await Tenant.findOne({ slug });
-    if (isTenantExists) throw new createHttpError(createHttpError.Conflict, ERROR_MESSAGE.TENANT_ALREADY_EXISTS);
+    const isTenantOrgNameExists = await Tenant.findOne({ orgName });
+    if (isTenantOrgNameExists) throw new createHttpError(createHttpError.Conflict, ERROR_MESSAGE.INVALID_ORGNAME);
+
+    const isTenantSlugExists = await Tenant.findOne({ slug });
+    if (isTenantSlugExists) throw new createHttpError(createHttpError.Conflict, ERROR_MESSAGE.INVALID_SLUG);
 
     const dbName = `db_${slug}`;
     const applicant = { firstName, lastName, email };
@@ -18,9 +21,8 @@ module.exports = async function (tenantData) {
     });
 
     const token = tenant.generateSetPasswordToken();
-    console.log(token);
-    await tenant.save();
     const verificationLink = `${process.env.FRONTEND_URL}/onboarding/activate?token=${token}`;
     await tenantVerifyEmail(orgName, firstName, lastName, email, verificationLink);
+    await tenant.save();
     return tenant;
 };

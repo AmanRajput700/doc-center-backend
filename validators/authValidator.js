@@ -51,4 +51,12 @@ const loginValidator = [
         .withMessage("Password must be at least 6 characters"),
 ]
 
-module.exports = { completeOnboardingValidator, loginValidator };
+const emailValidator = [
+    body("email")
+        .notEmpty()
+        .withMessage("Email is required")
+        .isEmail()
+        .withMessage("Enter a valid email"),
+]
+
+module.exports = { completeOnboardingValidator, loginValidator, emailValidator };

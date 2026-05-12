@@ -1,29 +1,17 @@
 module.exports = {
-    TENANT_ALREADY_EXISTS: 'Tenant Already Exists',
-    TENANT_NOT_FOUND: 'Tenant Not Found',
-    USER_NOT_FOUND: 'User not found',
-    PRODUCT_NOT_FOUND: 'Product Not found',
-    USER_ALREADY_EXISTS: 'User already exists',
-    PASSWORD_MISMATCH: 'New password and confirm password mismatch',
-    OLD_PASSWORD_MISMATCH: 'New password can not be same with old password',
-    INVALID_CREDENTIALS: 'Invalid credentials',
-    INVALID_USER: 'Invalid User',
-    ADDRESS_NOT_FOUND: 'Address not found',
-    USER_NOT_ALLOWED: 'This user not allowed to access this resources',
-    CARTITEM_NOT_FOUND: 'Cart item not found',
-    CART_NOT_FOUND: 'Cart not found',
-    PRODUCT_OUTOFSTOCK: 'Product is out of stock',
-    CATEGORY_EXISTS: 'This category already exists',
-    CATEGORY_NOT_FOUND: 'Category not found',
-    ORDER_NOT_FOUND: 'Order not found',
-    REVIEW_NOT_FOUND: 'Review not found',
-    REVIEW_ALREADY_EXISTS: 'Review already exists',
-    USER_ALREADY_WISHLISTED: 'User already wishlisted this product',
-    WISHLIST_NOT_FOUND: 'Wishlist not found',
-    ORDER_NOT_CANCEL: 'Order can not be cancel after placed',
-    COUPON_NOT_FOUND: 'Coupon Not Found',
-    COUPON_EXPIRED: 'Coupon Expired',
-    COUPON_ALREADY_EXISTS: 'COupon Already exists',
-    COUPON_INVALID: 'Invalid Coupon',
-    EMAIL_INVALID: 'Invalid Email'
-}
+  TENANT_ALREADY_EXISTS: 'A tenant with the provided details already exists.',
+  TENANT_NOT_FOUND: 'Tenant not found.',
+  INVALID_SLUG: 'The provided slug is invalid.',
+  INVALID_ORGNAME: 'The provided organization name is invalid.',
+
+  USER_NOT_FOUND: 'User not found.',
+  USER_ALREADY_EXISTS: 'A user with the provided details already exists.',
+  INVALID_USER: 'The specified user is invalid.',
+  USER_NOT_ALLOWED: 'You are not allowed to access this resource.',
+
+  INVALID_CREDENTIALS: 'Invalid email or password.',
+  PASSWORD_MISMATCH: 'New password and confirm password do not match.',
+  OLD_PASSWORD_MISMATCH: 'New password cannot be the same as the old password.',
+
+  EMAIL_INVALID: 'The provided email address is invalid.'
+};

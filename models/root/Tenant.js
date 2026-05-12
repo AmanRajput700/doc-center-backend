@@ -15,7 +15,6 @@ const applicantSubSchema = new mongoose.Schema({
     email: {
         type: String,
         required: true,
-        unique: true,
         lowercase: true,
         trim: true
     }
@@ -70,11 +69,10 @@ const tenantSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-tenantSchema.pre('validate', function (next) {
+tenantSchema.pre('validate', function () {
     if (!this.dbName && this.slug) {
         this.dbName = `db_${this.slug}`;
     }
-    next;
 });
 
 tenantSchema.methods.generateSetPasswordToken = function () {
