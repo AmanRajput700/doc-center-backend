@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('node:crypto')
 
 const userSchema = new mongoose.Schema(
     {
@@ -43,6 +44,34 @@ const userSchema = new mongoose.Schema(
         },
         lastLogin: {
             type: Date
+        },
+        otp: {
+            type: String
+        },
+        otpExpiry: {
+            type: Date
+        },
+        resetPasswordToken: {
+            type: String
+        },
+        resetPasswordTokenExpiry: {
+            type: Date
+        },
+        otpAttempts: {
+            type: Number,
+            default: 0
+        },
+        otpBlockedUntil: {
+            type: Date
+        },
+        otpResendBlockedUntil: {
+            type: Date
+        },
+        failedLogInAttempts: {
+            type: Number
+        },
+        lockUntil: {
+            type: Date
         }
     }, { timestamps: true });
 
@@ -57,11 +86,27 @@ userSchema.methods.comparePassword = async function (password) {
     return await bcrypt.compare(password, this.password);
 };
 
+userSchema.methods.generateOTP = function () {
+    const otp = Math.floor(100000 + Math.random() * 900000);
+    this.otp = crypto.createHash('sha256').update(String(otp)).digest('hex');
+    this.otpExpiry = Date.now() + 1000 * 60 * 5;
+    this.otpAttempts = 0;
+    this.otpBlockedUntil = undefined;
+    return otp;
+}
+
+userSchema.methods.generateResetPasswordToken = function () {
+    const token = crypto.randomUUID();
+    this.resetPasswordToken = crypto.createHash('sha256').update(token).digest('hex');
+    this.resetPasswordTokenExpiry = Date.now() + 1000 * 60 * 5;
+    return token;
+}
+
 userSchema.methods.generateAccessToken = function (mapping) {
 
     const payload = {
         _id: this._id,
-        role: this.role,
+        email: this.email,
         tenantId: mapping.tenantId._id,
     }
     return jwt.sign(
@@ -76,7 +121,8 @@ userSchema.methods.generateAccessToken = function (mapping) {
 userSchema.methods.generateRefreshToken = function () {
     return jwt.sign(
         {
-            userId: this._id
+            _id: this._id,
+            email: this.email,
         },
         process.env.REFRESH_TOKEN_SECRET,
         {

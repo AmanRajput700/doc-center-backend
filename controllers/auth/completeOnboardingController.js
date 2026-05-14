@@ -1,6 +1,6 @@
 const createHttpError = require('http-errors');
 const Tenant = require('../../models/root/Tenant');
-const ERROR_MESSAGE = require('../../utils/constant');
+const { ERROR_MESSAGE, STATUS_CODE } = require('../../utils/constant');
 const crypto = require('node:crypto');
 const userSchema = require('../../models/tenant/userSchema');
 const mongoose = require('mongoose');
@@ -8,11 +8,11 @@ const TenantUserMap = require('../../models/root/TenantUserMap');
 
 module.exports = async function (userData) {
     const { password, confirmPassword, token } = userData;
-    if (password !== confirmPassword) throw new createHttpError(createHttpError.Unauthorized, ERROR_MESSAGE.INVALID_CREDENTIALS);
+    if (password !== confirmPassword) throw new createHttpError(STATUS_CODE.UNAUTHORIZED, ERROR_MESSAGE.INVALID_CREDENTIALS);
     const hashedSetPasswordToken = crypto.createHash('sha256').update(token).digest('hex');
 
     const tenant = await Tenant.findOne({ setPasswordToken: hashedSetPasswordToken, setPasswordExpiry: { $gt: Date.now() } });
-    if (!tenant) throw new createHttpError(createHttpError.Unauthorized, ERROR_MESSAGE.INVALID_CREDENTIALS);
+    if (!tenant) throw new createHttpError(STATUS_CODE.UNAUTHORIZED, ERROR_MESSAGE.INVALID_CREDENTIALS);
 
     const tenantDB = mongoose.connection.useDb(tenant.dbName);
     const User = tenantDB.models.User || tenantDB.model('User', userSchema);
