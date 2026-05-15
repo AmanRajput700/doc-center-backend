@@ -37,6 +37,7 @@ module.exports = async function (userData) {
     const { refreshToken, accessToken } = await tokenGenrator(User, user._id, mapping);
     user.failedLogInAttempts = 0;
     user.lockUntil = undefined;
+    user.lastLogin = Date.now();
     await user.save();
     user.password = undefined;
     return { user, slug: mapping.tenantId.slug, refreshToken, accessToken };

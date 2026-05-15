@@ -5,6 +5,8 @@ const crypto = require('node:crypto');
 const userSchema = require('../../models/tenant/userSchema');
 const mongoose = require('mongoose');
 const TenantUserMap = require('../../models/root/TenantUserMap');
+const permissionSeeder = require('../../seeders/tenant/permissionSeeder');
+const roleSeeder = require('../../seeders/tenant/roleSeeder');
 
 module.exports = async function (userData) {
     const { password, confirmPassword, token } = userData;
@@ -25,6 +27,8 @@ module.exports = async function (userData) {
         status: 'active',
     });
 
+    await permissionSeeder(tenantDB);
+    await roleSeeder(tenantDB);
     await TenantUserMap.create({
         email: tenant.applicant.email,
         tenantId: tenant._id,
