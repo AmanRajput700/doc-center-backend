@@ -18,17 +18,17 @@ module.exports = async function (userData) {
 
     const tenantDB = mongoose.connection.useDb(tenant.dbName);
     const User = tenantDB.models.User || tenantDB.model('User', userSchema);
+    const roleId = await roleSeeder(tenantDB);
     await User.create({
         firstName: tenant.applicant.firstName,
         lastName: tenant.applicant.lastName,
         email: tenant.applicant.email,
         password,
-        role: 'Admin',
+        role: roleId,
         status: 'active',
     });
 
     await permissionSeeder(tenantDB);
-    await roleSeeder(tenantDB);
     await TenantUserMap.create({
         email: tenant.applicant.email,
         tenantId: tenant._id,

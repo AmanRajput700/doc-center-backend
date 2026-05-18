@@ -15,7 +15,7 @@ const tenantUserMapSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['active', 'suspended'],
+        enum: ['active', 'pending', 'suspended'],
         default: 'active'
     }
 }, { timestamps: true });

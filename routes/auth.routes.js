@@ -47,8 +47,8 @@ router.post('/login', validate(loginValidator), asyncHandler(async function _log
     //     path: '/',
     //     maxAge: 7 * 24 * 60 * 60 * 1000
     // };
-    // res.cookie('accessToken', accessToken, cookieOptions);
-    // res.cookie('refreshToken', refreshToken, cookieOptions);
+    res.cookie('accessToken', accessToken );
+    res.cookie('refreshToken', refreshToken);
     return res.status(200).json(new apiResponse({ user, slug, accessToken, refreshToken }, 200, 'User Succefully logedIn'));
 }));
 
@@ -66,7 +66,7 @@ router.post('/refresh-access-token', asyncHandler(async function _refreshAccessT
 
 router.get('/validate-secure-token', asyncHandler(async function _verifySetPasswordToken(req, res, next) {
     const token = req.query.token;
-    const status = await require('../controllers/auth/validateResetPasswordToken.js')(token);
+    const status = await require('../controllers/auth/validateTenantSetPasswordToken.js')(token);
     return res.status(200).json(new apiResponse({ status }, 200, 'Token validate'));
 }));
 
