@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Invitation to Join Doc-Center</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7fb;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background-color: #2563eb;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .content {
+            padding: 40px 30px;
+            color: #333333;
+        }
+
+        .content h2 {
+            margin-top: 0;
+        }
+
+        .invite-wrapper {
+            text-align: center;
+            margin: 35px 0;
+        }
+
+        .invite-button {
+            display: inline-block;
+            background-color: #2563eb;
+            color: #ffffff !important;
+            text-decoration: none;
+            padding: 14px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .info-box {
+            background-color: #f3f4f6;
+            padding: 18px;
+            border-radius: 8px;
+            margin-top: 25px;
+            color: #111827;
+        }
+
+        .message-box {
+            background-color: #eff6ff;
+            border-left: 4px solid #2563eb;
+            padding: 16px;
+            border-radius: 6px;
+            margin-top: 20px;
+            color: #1e3a8a;
+        }
+
+        .footer {
+            padding: 20px;
+            font-size: 13px;
+            color: #777777;
+            text-align: center;
+            background-color: #f9fafb;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="header">
+            <h1>
+                <%= orgName %>
+            </h1>
+        </div>
+
+        <div class="content">
+
+            <h2>You’ve Been Invited</h2>
+
+            <p>
+                You have been invited to join <strong>Doc-Center</strong> under
+                <strong><%= orgName %></strong>.
+            </p>
+
+            <% if (message) { %>
+                <div class="message-box">
+                    <strong>Message from Admin:</strong>
+                    <p style="margin-top: 10px;">
+                        <%= message %>
+                    </p>
+                </div>
+            <% } %>
+
+            <p>
+                Click the button below to accept your invitation and set up your account.
+            </p>
+
+            <div class="invite-wrapper">
+                <a href="<%= inviteLink %>" class="invite-button">
+                    Accept Invitation
+                </a>
+            </div>
+
+            <div class="info-box">
+                <p style="margin: 0;">
+                    <strong>Email:</strong> <%= email %>
+                </p>
+
+                <p style="margin: 10px 0 0;">
+                    This invitation link will expire in
+                    <strong>7 days</strong>.
+                </p>
+            </div>
+
+            <p style="margin-top: 30px;">
+                If you were not expecting this invitation, you can safely ignore this email.
+            </p>
+
+        </div>
+
+        <div class="footer">
+            © <%= currentYear %> <%= orgName %>. All rights reserved.
+        </div>
+
+    </div>
+
+</body>
+
+</html>

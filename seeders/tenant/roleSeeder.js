@@ -11,11 +11,13 @@ module.exports = async function (tenantDB) {
     const allPermissionIds = permissions.map(permission => permission._id);
 
     const isAdminRoleExists = await Role.findOne({ name: 'Admin' }).lean();
+    let role;
     if (!isAdminRoleExists) {
-        await Role.create({
+        role = await Role.create({
             name: 'Admin',
             permissions: allPermissionIds,
             isSystemRole: true
         });
     }
+    return role._id;
 }

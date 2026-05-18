@@ -7,12 +7,10 @@ const userSchema = new mongoose.Schema(
     {
         firstName: {
             type: String,
-            required: true,
             trim: true
         },
         lastName: {
             type: String,
-            required: true,
             trim: true
         },
         email: {
@@ -29,9 +27,8 @@ const userSchema = new mongoose.Schema(
             select: false
         },
         role: {
-            type: String,
-            enum: ['Admin', 'Manager', 'Employee'],
-            default: 'Employee'
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Role'
         },
         status: {
             type: String,
@@ -112,6 +109,10 @@ userSchema.methods.generateAccessToken = function (mapping) {
         _id: this._id,
         email: this.email,
         tenantId: mapping.tenantId._id,
+        role: {
+            _id: this.role._id,
+            name: this.role.name
+        }
     }
     return jwt.sign(
         payload,

@@ -4,7 +4,7 @@ const {ERROR_MESSAGE, STATUS_CODE} = require('../../utils/constant');
 const resendForgotPasswordOtpEmail = require('../../utils/emails/resendForgotPasswordOtp');
 const mongoose = require('mongoose');
 const userSchema = require('../../models/tenant/userSchema');
-const TIME = require('../../utils/time.js')
+const TIME = require('../../utils/times.js')
 
 module.exports = async function (email) {
     const normalizedEmail = email.trim().toLowerCase();
