@@ -8,5 +8,6 @@ router.use('/users', require('./users.routes'));
 router.use('/members', require('./members.routes'));
 router.use('/roles', require('./roles.routes'));
 router.use('/docs', require('./doc.routes'));
+router.use('/permissions', require('./permissions.routes'));
 
 module.exports = router;
