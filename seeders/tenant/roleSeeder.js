@@ -19,5 +19,5 @@ module.exports = async function (tenantDB) {
             isSystemRole: true
         });
     }
-    return role._id;
+    return role;
 }
