@@ -2,7 +2,6 @@ const { body } = require('express-validator');
 const createHttpError = require('http-errors');
 const { STATUS_CODE } = require('../utils/constant')
 const completeOnboardingValidator = [
-
     body('password')
         .trim()
         .notEmpty()
@@ -39,23 +38,17 @@ const completeOnboardingValidator = [
 ];
 
 const loginValidator = [
-    // body("email")
-    //     .notEmpty()
-    //     .withMessage("Email is required")
-    //     .isEmail()
-    //     .withMessage("Enter a valid email"),
+    body("email")
+        .notEmpty()
+        .withMessage("Email is required")
+        .isEmail()
+        .withMessage("Enter a valid email"),
 
     body("password")
         .notEmpty()
         .withMessage("Password is required")
         .isLength({ min: 6 })
         .withMessage("Password must be at least 6 characters"),
-
-    body("emailVerifyToken")
-        .notEmpty()
-        .withMessage("Email verify token is required")
-        .isJWT()
-        .withMessage("Invalid email verify token"),
 
     body('slug')
         .trim()

@@ -10,9 +10,7 @@ const TIME = require('../../utils/times');
 const roleSchema = require('../../models/tenant/roleSchema');
 
 module.exports = async function (userData) {
-    const { emailVerifyToken, password, slug } = userData;
-    const decoded = jwt.verify(emailVerifyToken, process.env.JWT_EMAIL_VERIFY_SECRET);
-    const email = decoded.email;
+    const { email, password, slug } = userData;
     const mapping = await TenantUserMap.findOne({ email }).populate("tenantId", "slug dbName");
     if (!mapping || mapping.tenantId.slug !== slug) throw new createHttpError(STATUS_CODE.NOT_FOUND, ERROR_MESSAGE.USER_NOT_FOUND);
 

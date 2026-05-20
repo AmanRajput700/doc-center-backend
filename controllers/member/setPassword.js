@@ -6,6 +6,7 @@ const crypto = require('node:crypto');
 const createHttpError = require('http-errors');
 const { ERROR_MESSAGE, STATUS_CODE } = require('../../utils/constant');
 const jwt = require('jsonwebtoken');
+const redis = require('../../services/cache');
 
 module.exports = async function (userData) {
     const { token, password, confirmPassword } = userData;
@@ -18,12 +19,14 @@ module.exports = async function (userData) {
             process.env.JWT_EMAIL_VERIFY_SECRET
         );
     } catch (err) {
+        console.log('hello');
         throw new createHttpError(STATUS_CODE.UNAUTHORIZED, ERROR_MESSAGE.INVALID_USER);
     }
     const email = decoded.email;
 
     const mapping = await TenantUserMap.findOne({ email, status: 'pending' }).populate('tenantId', 'dbName');
     if (!mapping) throw new createHttpError(STATUS_CODE.UNAUTHORIZED, ERROR_MESSAGE.INVALID_USER);
+    console.log(mapping);
 
     const tenantDB = mongoose.connection.useDb(mapping.tenantId.dbName);
 
@@ -44,4 +47,5 @@ module.exports = async function (userData) {
     });
     await TenantUserMap.updateOne({ email }, { $set: { status: 'active' } });
     await InviteMember.updateOne({ email }, { $set: { status: 'accepted' }, $unset: { inviteToken: 1, inviteTokenExpiry: 1 } });
+    await redis.del(`user:${mapping.tenantId.dbName}`);
 }
