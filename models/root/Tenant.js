@@ -79,7 +79,7 @@ tenantSchema.pre('validate', function () {
 tenantSchema.methods.generateSetPasswordToken = function () {
     const token = crypto.randomUUID();
     this.setPasswordToken = crypto.createHash('sha256').update(token).digest('hex');
-    this.setPasswordExpiry = Date.now() + 1000 * 60 * 15;
+    this.setPasswordExpiry = Date.now() + 1000 * 60 * 1;
     return token;
 }
 
