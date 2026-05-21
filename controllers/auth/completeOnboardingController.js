@@ -5,6 +5,8 @@ const crypto = require('node:crypto');
 const userSchema = require('../../models/tenant/userSchema');
 const mongoose = require('mongoose');
 const TenantUserMap = require('../../models/root/TenantUserMap');
+const permissionSeeder = require('../../seeders/tenant/permissionSeeder');
+const roleSeeder = require('../../seeders/tenant/roleSeeder');
 
 module.exports = async function (userData) {
     const { password, confirmPassword, token } = userData;
@@ -16,12 +18,14 @@ module.exports = async function (userData) {
 
     const tenantDB = mongoose.connection.useDb(tenant.dbName);
     const User = tenantDB.models.User || tenantDB.model('User', userSchema);
+    await permissionSeeder(tenantDB);
+    const role = await roleSeeder(tenantDB);
     await User.create({
         firstName: tenant.applicant.firstName,
         lastName: tenant.applicant.lastName,
         email: tenant.applicant.email,
         password,
-        role: 'Admin',
+        role: role._id,
         status: 'active',
     });
 
