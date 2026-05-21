@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const verifyToken = require('../middleware/verifyToken');
+const authorize = require('../middleware/authorize');
 const asyncHandler = require('../utils/asyncHandler');
-const checkRole = require('../middleware/checkRoleMiddleware');
 const validate = require('../middleware/validate');
 const { setPasswordValidator, inviteMemberValidator } = require('../validators/inviteMemberValidator');
 const apiResponse = require('../utils/apiResponse');
 
-router.post('/invite', verifyToken, checkRole('Admin'), validate(inviteMemberValidator), asyncHandler(async function _inviteMember(req, res, next) {
+router.post('/invite', verifyToken, authorize('invite_user'), validate(inviteMemberValidator), asyncHandler(async function _inviteMember(req, res, next) {
     const invitedBy = req.user;
     const userData = req.body;
     const orgName = req.tenant.orgName;
