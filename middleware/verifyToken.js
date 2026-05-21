@@ -10,11 +10,12 @@ const Tenant = require('../models/root/Tenant');
 module.exports = asyncHandler(async function (req, res, next) {
     let token = null;
 
-    if (req.cookies?.accessToken) {
-        token = req.cookies.accessToken;
-    } else if (req.headers.authorization?.startsWith('Bearer ')) {
+    if (req.headers.authorization?.startsWith('Bearer ')) {
         token = req.headers.authorization.split(' ')[1];
+    } else if (req.cookies?.accessToken) {
+        token = req.cookies.accessToken;
     }
+
 
     if (!token) {
         throw new createHttpError(STATUS_CODE.UNAUTHORIZED, ERROR_MESSAGE.INVALID_USER);

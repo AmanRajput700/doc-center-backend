@@ -13,6 +13,9 @@ module.exports = new mongoose.Schema({
             ref: 'Permission'
         }
     ],
+    description: {
+        type: String
+    },
     isSystemRole: {
         type: Boolean,
         default: false

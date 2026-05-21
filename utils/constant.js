@@ -20,8 +20,15 @@ const ERROR_MESSAGE = {
 
   EMAIL_INVALID: 'The provided email address is invalid.',
 
-  INVITE_ALREADY_SENT: 'Invite has been already sent on this email'
+  INVITE_ALREADY_SENT: 'Invite has been already sent on this email',
 
+  DOC_NOT_FOUND: 'Document not found',
+
+
+  ROLE_ALREADY_EXISTS: 'Role Already exists',
+  ROLE_NOT_FOUND: 'Role Not Found',
+
+  PERMISSION_NOT_FOUND: 'Permission ID not found'
 };
 
 const STATUS_CODE = Object.freeze({

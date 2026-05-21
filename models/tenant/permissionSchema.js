@@ -8,6 +8,11 @@ module.exports = new mongoose.Schema({
         trim: true,
         lowercase: true
     },
+    displayName: {
+        type: String,
+        required: true,
+        trim: true
+    },
     description: {
         type: String,
         trim: true
