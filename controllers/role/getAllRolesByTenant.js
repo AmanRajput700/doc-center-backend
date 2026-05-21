@@ -13,6 +13,11 @@ module.exports = async function (tenant) {
 
     let dbRoles = await Role.aggregate([
         {
+            $match: {
+                isSystemRole: false
+            }
+        },
+        {
             $lookup: {
                 from: 'users',
                 localField: '_id',

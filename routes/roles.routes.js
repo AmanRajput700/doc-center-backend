@@ -23,7 +23,7 @@ router.delete('/:id', verifyToken, authorize('delete_role'), asyncHandler(async 
     return res.status(200).json(new apiResponse({ deletedRole }, 200, 'Role Deleted successfully'));
 }));
 
-router.patch('/permissions/:id', verifyToken, authorize('assign_permission'), asyncHandler(async function _updatePermission(req, res, next) {
+router.put('/permissions/:id', verifyToken, authorize('assign_permission'), asyncHandler(async function _updatePermission(req, res, next) {
     const roleId = req.params.id;
     const permissionData = req.body;
     const updatedRole = await require('../controllers/role/updateRolePermission')(roleId, permissionData, req.tenant.dbName);
@@ -33,7 +33,7 @@ router.patch('/permissions/:id', verifyToken, authorize('assign_permission'), as
 router.put('/:id', verifyToken, authorize('update_role'), asyncHandler(async function _updateRoleName(req, res, next) {
     const roleId = req.params.id;
     const roleData = req.body;
-    const updatedRole = await require('../controllers/role/updateRoleName')(roleId, roleData, req.tenant.dbName);
+    const updatedRole = await require('../controllers/role/updateRole')(roleId, roleData, req.tenant.dbName);
     return res.status(200).json(new apiResponse({ updatedRole }, 200, 'Role updated'));
 }));
 

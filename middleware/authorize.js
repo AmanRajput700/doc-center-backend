@@ -27,7 +27,7 @@ module.exports = function (requiredPermission) {
             }
             next();
         } catch (error) {
-            next(error);
+            next(createHttpError(403, 'Forbidden'));
         }
     };
 };
