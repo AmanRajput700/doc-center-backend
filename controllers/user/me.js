@@ -16,11 +16,18 @@ module.exports = async function (userId, dbName) {
             path: 'role',
             populate: {
                 path: 'permissions',
-                select: 'displayName module'
+                select: 'name module'
             }
         })
         .select('-password -failedLogInAttempts -updatedAt -otpAttempts ')
         .lean();
+
+    if (user.role && user.role.permissions) {
+        user.role.permissions = user.role.permissions.map((permission) => {
+            return permission.name;
+        });
+    }
+
     if (!user) throw new createHttpError(STATUS_CODE.NOT_FOUND, ERROR_MESSAGE.USER_NOT_FOUND);
 
     return user;
