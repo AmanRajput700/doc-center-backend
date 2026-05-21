@@ -7,17 +7,17 @@ const userSchema = require('../../models/tenant/userSchema');
 const tokenGenrator = require('../../utils/tokenGenrator');
 const jwt = require('jsonwebtoken');
 const TIME = require('../../utils/times');
+const roleSchema = require('../../models/tenant/roleSchema');
 
 module.exports = async function (userData) {
-    const { emailVerifyToken, password, slug } = userData;
-    const decoded = jwt.verify(emailVerifyToken, process.env.JWT_EMAIL_VERIFY_SECRET);
-    const email = decoded.email;
+    const { email, password, slug } = userData;
     const mapping = await TenantUserMap.findOne({ email }).populate("tenantId", "slug dbName");
     if (!mapping || mapping.tenantId.slug !== slug) throw new createHttpError(STATUS_CODE.NOT_FOUND, ERROR_MESSAGE.USER_NOT_FOUND);
 
     const tenantDB = mongoose.connection.useDb(mapping.tenantId.dbName);
+    const Role = tenantDB.models.Role || tenantDB.model('Role', roleSchema);
     const User = tenantDB.models.User || tenantDB.model('User', userSchema);
-    const user = await User.findOne({ email }).select("+password");
+    const user = await User.findOne({ email }).populate('role', 'name').select("+password");
     if (!user) throw new createHttpError(STATUS_CODE.NOT_FOUND, ERROR_MESSAGE.USER_NOT_FOUND);
 
     if (user.lockUntil && user.lockUntil > Date.now()) {
@@ -37,6 +37,7 @@ module.exports = async function (userData) {
     const { refreshToken, accessToken } = await tokenGenrator(User, user._id, mapping);
     user.failedLogInAttempts = 0;
     user.lockUntil = undefined;
+    user.lastLogin = Date.now();
     await user.save();
     user.password = undefined;
     return { user, slug: mapping.tenantId.slug, refreshToken, accessToken };

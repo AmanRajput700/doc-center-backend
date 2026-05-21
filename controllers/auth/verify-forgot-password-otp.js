@@ -4,7 +4,7 @@ const TenantUserMap = require('../../models/root/TenantUserMap');
 const mongoose = require('mongoose');
 const userSchema = require('../../models/tenant/userSchema');
 const { ERROR_MESSAGE, STATUS_CODE } = require('../../utils/constant');
-const TIME = require('../../utils/time.js');
+const TIME = require('../../utils/times');
 
 module.exports = async function (userData) {
     const { otp, email, slug } = userData;

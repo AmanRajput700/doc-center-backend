@@ -54,6 +54,14 @@ const registerTenantValidator = [
         .normalizeEmail()
 ];
 
+const resendEmailValidator = [
+    body('token')
+        .trim()
+        .notEmpty()
+        .withMessage('Organization name is required')
+];
+
 module.exports = {
-    registerTenantValidator
+    registerTenantValidator,
+    resendEmailValidator
 }

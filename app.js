@@ -5,7 +5,6 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
 
 var app = express();
 
@@ -19,6 +18,7 @@ app.set('view engine', 'ejs');
 app.use(
   cors({
     origin: /^http:\/\/([a-zA-Z0-9-]+)\.192\.168\.100\.166\.nip\.io:5173$/,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: true
   })
 );

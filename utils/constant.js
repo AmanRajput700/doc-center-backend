@@ -8,7 +8,7 @@ const ERROR_MESSAGE = {
   INVALID_OTP: 'The provided otp is invalid.',
 
   USER_NOT_FOUND: 'User not found.',
-  USER_ALREADY_EXISTS: 'A user with the provided details already exists.',
+  USER_ALREADY_EXISTS: 'A user with the provided email already exists.',
   INVALID_USER: 'The specified user is invalid.',
   USER_NOT_ALLOWED: 'You are not allowed to access this resource.',
 
@@ -18,7 +18,17 @@ const ERROR_MESSAGE = {
   TOO_MANY_OTP_ATTEMPTS: 'Too many incorrect OTP attempts. Please resend Otp',
   OTP_RESEND_LIMIT: "Cooldown period for otp resend",
 
-  EMAIL_INVALID: 'The provided email address is invalid.'
+  EMAIL_INVALID: 'The provided email address is invalid.',
+
+  INVITE_ALREADY_SENT: 'Invite has been already sent on this email',
+
+  DOC_NOT_FOUND: 'Document not found',
+
+
+  ROLE_ALREADY_EXISTS: 'Role Already exists',
+  ROLE_NOT_FOUND: 'Role Not Found',
+
+  PERMISSION_NOT_FOUND: 'Permission ID not found'
 };
 
 const STATUS_CODE = Object.freeze({
