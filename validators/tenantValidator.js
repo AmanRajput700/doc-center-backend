@@ -25,11 +25,11 @@ const registerTenantValidator = [
             'Slug can only contain lowercase letters, numbers, and hyphens'
         ),
 
-    body('logo')
-        .optional()
-        .trim()
-        .isURL()
-        .withMessage('Logo must be a valid URL'),
+    // body('logo')
+    //     .optional()
+    //     .trim()
+    //     .isURL()
+    //     .withMessage('Logo must be a valid URL'),
 
     body('firstName')
         .trim()
