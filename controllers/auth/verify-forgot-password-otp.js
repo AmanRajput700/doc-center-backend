@@ -28,7 +28,7 @@ module.exports = async function (userData) {
         user.otpAttempts += 1;
         const remainingAttempts = TIME.MAX_OTP_ATTEMPTS - user.otpAttempts;
         if (user.otpAttempts >= TIME.MAX_OTP_ATTEMPTS - 1) {
-            user.otpBlockedUntil = TIME.OTP_BLOCKED_UNTIL;
+            user.otpBlockedUntil = Date.now() + TIME.OTP_BLOCKED_UNTIL;
             user.otpAttempts = 0;
         }
         await user.save();
