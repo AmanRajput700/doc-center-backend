@@ -6,6 +6,33 @@ const upload = require('../config/multer.config');
 const asyncHandler = require('../utils/asyncHandler');
 const apiResponse = require('../utils/apiResponse');
 const authorize = require('../middleware/authorize');
+const validate = require('../middleware/validate');
+const { documentUploadValidator, paramIdValidator } = require('../validators/documentValidator');
+
+router.post('/presigned-upload-url', verifyToken, authorize('upload_document'), validate(documentUploadValidator), asyncHandler(async function _getPresignedUploadUrl(req, res, next) {
+    const tenant = req.tenant;
+    const fileData = req.body;
+    const userId = req.user._id;
+
+    const { documentId, url, key } = await require('../controllers/document/getPresignedUploadUrl')(tenant, fileData, userId);
+    return res.status(200).json(new apiResponse({ documentId, url, key }, 200, 'Pre-Signed upload url is genrated succesfully'));
+}));
+
+router.post('/:id/complete', verifyToken, authorize('upload_document'), validate(paramIdValidator), asyncHandler(async function _uploadComplete(req, res, next) {
+    const tenant = req.tenant;
+    const documentId = req.params.id;
+    const document = await require('../controllers/document/uploadCompleted')(documentId, tenant);
+    return res.status(200).json(new apiResponse({ document }, 200, 'Document Upload Completed'));
+}));
+
+router.post('/:id/failed', verifyToken, authorize('upload_document'), validate(paramIdValidator), asyncHandler(async function _uploadFail(req, res, next) {
+    const tenant = req.tenant;
+    const documentId = req.params.id;
+    const document = await require('../controllers/document/uploadFailed')(documentId, tenant);
+    return res.status(200).json(new apiResponse({ document }, 200, 'Document Upload Failed'));
+}));
+
+
 
 router.post('/upload', verifyToken, authorize('upload_document'), upload.single('document'), asyncHandler(async function _upload(req, res, next) {
     const docData = req.body;

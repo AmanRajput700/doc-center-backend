@@ -109,6 +109,7 @@ userSchema.methods.generateAccessToken = function (mapping) {
         _id: this._id,
         email: this.email,
         tenantId: mapping.tenantId._id,
+        slug: mapping.tenantId.slug,
         role: {
             _id: this.role._id,
             name: this.role.name
