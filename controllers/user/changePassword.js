@@ -16,7 +16,7 @@ module.exports = async function (data, userId, dbName) {
     if (!user) throw new createHttpError(STATUS_CODE.NOT_FOUND, ERROR_MESSAGE.USER_NOT_FOUND);
 
     const isValidUser = await user.comparePassword(currentPassword);
-    if (!isValidUser) throw new createHttpError(STATUS_CODE.UNAUTHORIZED, ERROR_MESSAGE.INVALID_CREDENTIALS);
+    if (!isValidUser) throw new createHttpError(STATUS_CODE.UNAUTHORIZED, 'Wrong Current Password');
 
     const isSamePassword = await user.comparePassword(newPassword);
     if (isSamePassword) throw new createHttpError(STATUS_CODE.CONFLICT, 'New password is same as Old password');
