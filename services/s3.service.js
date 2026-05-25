@@ -23,30 +23,28 @@ async function generateGetObjectUrl(key) {
     const commmand = new GetObjectCommand({
         Bucket: process.env.AWS_BUCKET_NAME,
         Key: key,
-        ResponseContentDisposition: 'inline'
     });
     const url = await getSignedUrl(s3Client, commmand);
     return url;
 }
 
-async function generateDownloadObjectUrl(key, fileName = 'download') {
+// async function generateDownloadObjectUrl(key, fileName = 'download') {
 
-    const command = new GetObjectCommand({
-        Bucket: process.env.AWS_BUCKET_NAME,
-        Key: key,
-        ResponseContentDisposition: `attachment; filename="${fileName}"`
-    });
+//     const command = new GetObjectCommand({
+//         Bucket: process.env.AWS_BUCKET_NAME,
+//         Key: key,
+//         ResponseContentDisposition: `attachment; filename="${fileName}"`
+//     });
 
-    const url = await getSignedUrl(
-        s3Client,
-        command,
-        // {expiresIn: EXPIRY}
-    );
-    return url;
-}
+//     const url = await getSignedUrl(
+//         s3Client,
+//         command,
+//         // {expiresIn: EXPIRY}
+//     );
+//     return url;
+// }
 
 module.exports = {
     generateUploadUrl,
-    generateGetObjectUrl,
-    generateDownloadObjectUrl
+    generateGetObjectUrl
 };

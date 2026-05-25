@@ -29,7 +29,10 @@ const ERROR_MESSAGE = {
   ROLE_ALREADY_EXISTS: 'Role Already exists',
   ROLE_NOT_FOUND: 'Role Not Found',
 
-  PERMISSION_NOT_FOUND: 'Permission ID not found'
+  PERMISSION_NOT_FOUND: 'Permission ID not found',
+
+
+  SLUG_NOT_FOUND: 'Slug Not Found'
 };
 
 const STATUS_CODE = Object.freeze({
