@@ -4,7 +4,8 @@ const verifyToken = require('../middleware/verifyToken');
 const apiResponse = require('../utils/apiResponse');
 const router = express.Router();
 const validate = require('../middleware/validate');
-const { updateUserValidator, changePasswordValidator } = require('../validators/userValidator')
+const { updateUserValidator, changePasswordValidator } = require('../validators/userValidator');
+const authorize = require('../middleware/authorize');
 
 router.get('/', verifyToken, asyncHandler(async function _getUser(req, res, next) {
   const tenant = req.tenant;
@@ -23,6 +24,13 @@ router.put('/', verifyToken, validate(updateUserValidator), asyncHandler(async f
   const userData = req.body;
   const updatedUser = await require('../controllers/user/updateProfile')(userData, userId, req.tenant.dbName);
   return res.status(200).json(new apiResponse({ updatedUser }, 200, 'User Data updated succesfully'));
+}));
+
+router.put('/:userId/roles/:roleId', verifyToken, authorize('assign_role'), asyncHandler(async function _updateUserRole(req, res, next) {
+  const userId = req.params.userId;
+  const roleId = req.params.roleId;
+  const updateduser = await require('../controllers/user/assignRoleToUser')(userId, roleId, req.tenant.dbName);
+  return res.status(200).json(new apiResponse({ updateduser }, 200, 'Role updated succesfully'));
 }));
 
 router.post('/change-password', verifyToken, validate(changePasswordValidator), asyncHandler(async function _changePassword(req, res, next) {
