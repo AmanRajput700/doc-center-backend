@@ -23,6 +23,7 @@ const ERROR_MESSAGE = {
   INVITE_ALREADY_SENT: 'Invite has been already sent on this email',
 
   DOC_NOT_FOUND: 'Document not found',
+  FOLDER_NOT_FOUND: 'Folder Not found',
 
 
   ROLE_ALREADY_EXISTS: 'Role Already exists',
