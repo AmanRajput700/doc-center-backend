@@ -18,6 +18,18 @@ router.post('/resend-email', validate(resendEmailValidator), asyncHandler(async 
     await require('../controllers/tenant/resendPasswordSetEmail')(token);
 
     return res.status(200).json(new apiResponse({}, 200, 'Email sent succesfully'));
+}));
+
+router.post('/logo-upload-url', asyncHandler(async function _generatePreSignedUrlForLogo(req, res, next) {
+    const logoData = req.body;
+    const { key, url } = await require('../controllers/tenant/logoUploadPresignedUrl')(logoData);
+    return res.status(200).json(new apiResponse({ key, url }, 200, 'Presigned Url generated succesfully'));
+}));
+
+router.get('/logo-url', asyncHandler(async function _getLogoUrl(req, res, next) {
+    const slug = req.query.slug;
+    const url = await require('../controllers/tenant/logoViewPresignedUrl')(slug);
+    return res.status(200).json(new apiResponse({ url }, 200, 'Presigned Url generated succesfully'));
 }))
 
 module.exports = router;

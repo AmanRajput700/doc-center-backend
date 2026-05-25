@@ -8,7 +8,7 @@ module.exports = async (orgName, applicantFirstName, applicantLastName, email, v
         const currentYear = new Date().getFullYear();
         const data = { orgName, applicantFirstName, applicantLastName, currentYear, verificationLink };
         const templatePath = path.join(__dirname, '../../views/tenantVerifyEmail.ejs');
-
+        console.log(email);
         const htmlContent = await ejs.renderFile(templatePath, data);
         try {
             const info = await transporter.sendMail({
@@ -19,7 +19,7 @@ module.exports = async (orgName, applicantFirstName, applicantLastName, email, v
                 html: htmlContent,
             });
         } catch (err) {
-            throw new createHttpError(422,"Invalid Email");
+            throw new createHttpError(422, "Invalid Email");
         }
     } catch (err) {
         console.log(err);

@@ -77,7 +77,7 @@ router.delete('/:id/folder', verifyToken, authorize('delete_document'), asyncHan
     return res.status(200).json(new apiResponse({ deletedFolder }, 200, 'Folder Deleted Succesfully'));
 }));
 
-router.put('/:id/folder', verifyToken, authorize('update_document'), asyncHandler(async function _updateDocument(req, res, next) {
+router.put('/:id/folder', verifyToken, authorize('update_document'), asyncHandler(async function _updateFolder(req, res, next) {
     const folderId = req.params.id;
     const data = req.body;
     const updatedFolder = await require('../controllers/document/updateFolderName')(folderId, data, req.tenant.dbName);
