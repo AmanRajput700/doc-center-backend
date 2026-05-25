@@ -3,9 +3,10 @@ const { generateUploadUrl } = require('../../services/s3.service');
 const documentSchema = require('../../models/tenant/documentSchema');
 const mongoose = require('mongoose');
 const path = require('node:path');
+const redis = require('../../services/cache');
 
 module.exports = async function (tenant, fileData, userId) {
-    const { fileName, contentType, folderId, size } = fileData;
+    const { fileName, contentType, folderId = null, size } = fileData;
     const { slug: tenantSlug, dbName, _id: tenantId } = tenant;
 
     const key = generateS3Key(tenantSlug, fileName);
@@ -28,5 +29,7 @@ module.exports = async function (tenant, fileData, userId) {
         storageProvide: 's3',
         uploadStatus: 'pending'
     });
+
+    await redis.del(`Document:${dbName}:${folderId || 'root'}`);
     return { documentId: document._id, url, key };
 };

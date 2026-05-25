@@ -17,7 +17,10 @@ const documentUploadValidator = [
         .withMessage('Content type must be a string'),
 
     body('folderId')
-        .optional({ nullable: true, checkFalsy: true })
+        .customSanitizer(value => {
+            return value === '' ? null : value;
+        })
+        .optional({ nullable: true })
         .isMongoId()
         .withMessage('Invalid folder id'),
 
@@ -35,8 +38,27 @@ const paramIdValidator = [
         .isMongoId()
         .withMessage('Invalid document id')
 ]
+const folderCreateValidator = [
+    body('name')
+        .trim()
+        .notEmpty()
+        .withMessage('Folder name is required')
+        .isString()
+        .withMessage('Folder name must be a string')
+        .isLength({ min: 1, max: 100 })
+        .withMessage('Folder name must be between 1 and 100 characters'),
+
+    body('parentFolderId')
+        .customSanitizer(value => {
+            return value === '' ? null : value;
+        })
+        .optional({ nullable: true })
+        .isMongoId()
+        .withMessage('Invalid parent folder id')
+];
 
 module.exports = {
     documentUploadValidator,
-    paramIdValidator
+    paramIdValidator,
+    folderCreateValidator
 }
