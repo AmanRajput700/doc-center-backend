@@ -2,7 +2,7 @@ const documentSchema = require('../../models/tenant/documentSchema');
 const mongoose = require('mongoose');
 const createHttpError = require('http-errors');
 const { STATUS_CODE, ERROR_MESSAGE } = require('../../utils/constant');
-const { generateGetObjectUrl } = require('../../services/s3.service');
+const { generateGetObjectUrl, generateDownloadObjectUrl } = require('../../services/s3.service');
 
 module.exports = async function (docId, tenant) {
     const { dbName, _id: tenantId } = tenant;
@@ -19,5 +19,5 @@ module.exports = async function (docId, tenant) {
     if (!document) throw new createHttpError(STATUS_CODE.NOT_FOUND, ERROR_MESSAGE.DOC_NOT_FOUND);
 
     const url = await generateDownloadObjectUrl(document.s3Key, document.storedName);
-    return { url };
+    return url;
 };

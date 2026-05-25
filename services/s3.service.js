@@ -13,7 +13,9 @@ async function generateUploadUrl(key, contentType) {
     const url = await getSignedUrl(
         s3Client,
         command,
-        // { expiresIn: Number(process.env.UPLOAD_URL_EXPIRY) }
+        {
+            expiresIn: 60 * 5
+        }
     );
 
     return url;
@@ -24,27 +26,36 @@ async function generateGetObjectUrl(key) {
         Bucket: process.env.AWS_BUCKET_NAME,
         Key: key,
     });
-    const url = await getSignedUrl(s3Client, commmand);
+    const url = await getSignedUrl(
+        s3Client,
+        commmand,
+        {
+            expiresIn: 60
+        }
+    );
     return url;
 }
 
-// async function generateDownloadObjectUrl(key, fileName = 'download') {
+async function generateDownloadObjectUrl(key, fileName = 'download') {
 
-//     const command = new GetObjectCommand({
-//         Bucket: process.env.AWS_BUCKET_NAME,
-//         Key: key,
-//         ResponseContentDisposition: `attachment; filename="${fileName}"`
-//     });
+    const command = new GetObjectCommand({
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: key,
+        ResponseContentDisposition: `attachment; filename="${fileName}"`
+    });
 
-//     const url = await getSignedUrl(
-//         s3Client,
-//         command,
-//         // {expiresIn: EXPIRY}
-//     );
-//     return url;
-// }
+    const url = await getSignedUrl(
+        s3Client,
+        command,
+        {
+            expiresIn: 60
+        }
+    );
+    return url;
+}
 
 module.exports = {
     generateUploadUrl,
-    generateGetObjectUrl
+    generateGetObjectUrl,
+    generateDownloadObjectUrl
 };

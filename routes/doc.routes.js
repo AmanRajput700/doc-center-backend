@@ -91,4 +91,10 @@ router.put('/:id/document', verifyToken, authorize('update_document'), asyncHand
     return res.status(200).json(new apiResponse({ updatedDoc }, 200, 'Document Updated Succesfully'));
 }));
 
+router.get('/:id/download', verifyToken, authorize('download_document'), asyncHandler(async function _donwloadFolder(req, res, next) {
+    const docId = req.params.id;
+    const url = await require('../controllers/document/getPreSignedDownloadUrl')(docId, req.tenant);
+    return res.status(200).json(new apiResponse({ url }, 200, ' Download Url Generated Succesfully'));
+}));
+
 module.exports = router;
