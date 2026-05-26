@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const getTenantModel = require('../../utils/getTenantModel');
 const roleSchema = require('../../models/tenant/roleSchema');
 const permissionSchema = require('../../models/tenant/permissionSchema');
 const redis = require('../../services/cache');
@@ -12,10 +12,8 @@ module.exports = async function (roleId, permissionData, dbName) {
         throw new createHttpError(STATUS_CODE.BAD_REQUEST, 'Permissions must be an array');
     }
 
-    const tenantDB = mongoose.connection.useDb(dbName);
-
-    const Role = tenantDB.models.Role || tenantDB.model('Role', roleSchema);
-    const Permission = tenantDB.models.Permission || tenantDB.model('Permission', permissionSchema);
+    const Role = getTenantModel(dbName, 'Role', roleSchema);
+    const Permission = getTenantModel(dbName, 'Permission', permissionSchema);
 
     const roleExists = await Role.findById(roleId);
     if (!roleExists) throw new createHttpError(STATUS_CODE.NOT_FOUND, ERROR_MESSAGE.ROLE_NOT_FOUND);

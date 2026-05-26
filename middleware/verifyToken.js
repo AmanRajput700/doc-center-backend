@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const { ERROR_MESSAGE, STATUS_CODE } = require('../utils/constant');
 const userSchema = require('../models/tenant/userSchema');
 const roleSchema = require('../models/tenant/roleSchema');
-const mongoose = require('mongoose');
+const getTenantModel = require('../utils/getTenantModel');
 const Tenant = require('../models/root/Tenant');
 
 module.exports = asyncHandler(async function (req, res, next) {
@@ -38,10 +38,8 @@ module.exports = asyncHandler(async function (req, res, next) {
             throw new createHttpError(STATUS_CODE.UNAUTHORIZED, ERROR_MESSAGE.INVALID_USER);
         }
 
-        const tenantDB = mongoose.connection.useDb(tenant.dbName);
-
-        const Role = tenantDB.models.Role || tenantDB.model('Role', roleSchema);
-        const User = tenantDB.models.User || tenantDB.model('User', userSchema);
+        const Role = getTenantModel(tenant.dbName, 'Role', roleSchema);
+        const User = getTenantModel(tenant.dbName, 'User', userSchema);
 
         const user = await User.findById(decoded._id).populate('role', 'name').select('-password -refreshToken');
 

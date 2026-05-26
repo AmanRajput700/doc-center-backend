@@ -1,4 +1,3 @@
-const mongoose = require('mongoose');
 const userSchema = require('../../models/tenant/userSchema');
 const getTenantModel = require('../../utils/getTenantModel');
 const createHttpError = require('http-errors');

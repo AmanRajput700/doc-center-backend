@@ -98,4 +98,21 @@ const otpValidator = [
         .withMessage('OTP must contain only numbers')
 ];
 
-module.exports = { completeOnboardingValidator, loginValidator, emailValidator, resetPasswordValidator, otpValidator };
+const verifyTokenValidator = [
+    body('slug')
+        .trim()
+        .notEmpty()
+        .withMessage('Tenant slug is required')
+        .isLength({ min: 3, max: 50 })
+        .withMessage('Slug must be between 3 and 50 characters')
+        .matches(/^[a-z0-9-]+$/)
+        .withMessage(
+            'Slug can only contain lowercase letters, numbers, and hyphens'
+        ),
+
+    body('token')
+        .trim()
+        .notEmpty()
+        .withMessage('Token is required')
+]
+module.exports = { completeOnboardingValidator, verifyTokenValidator, loginValidator, emailValidator, resetPasswordValidator, otpValidator };

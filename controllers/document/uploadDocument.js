@@ -1,12 +1,11 @@
 const createHttpError = require('http-errors');
-const mongoose = require('mongoose');
+const getTenantModel = require('../../utils/getTenantModel');
 const documentSchema = require('../../models/tenant/documentSchema');
 const redis = require('../../services/cache');
 
 module.exports = async function (docData, file, uploadedBy, dbName) {
     const { name, type, parentId } = docData;
-    const tenantDB = mongoose.connection.useDb(dbName);
-    const Document = tenantDB.models.Document || tenantDB.model('Document', documentSchema);
+    const Document = getTenantModel(dbName, 'Document', documentSchema);
 
     let docs;
     if (!file) {

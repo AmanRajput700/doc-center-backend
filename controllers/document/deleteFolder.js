@@ -1,13 +1,11 @@
-const mongoose = require('mongoose');
+const getTenantModel = require('../../utils/getTenantModel');
 const redis = require('../../services/cache');
 const folderSchema = require('../../models/tenant/folderSchema');
 const { ERROR_MESSAGE, STATUS_CODE } = require('../../utils/constant');
 const createHttpError = require('http-errors');
 
 module.exports = async function (folderId, dbName) {
-    const tenantDB = mongoose.connection.useDb(dbName);
-
-    const Folder = tenantDB.models.Folder || tenantDB.model('Folder', folderSchema);
+    const Folder = getTenantModel(dbName, 'Folder', folderSchema);
 
     const folder = await Folder.findById(folderId);
 

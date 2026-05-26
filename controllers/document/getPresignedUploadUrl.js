@@ -1,7 +1,7 @@
 const generateS3Key = require('../../utils/generateS3Key');
 const { generateUploadUrl } = require('../../services/s3.service');
 const documentSchema = require('../../models/tenant/documentSchema');
-const mongoose = require('mongoose');
+const getTenantModel = require('../../utils/getTenantModel');
 const path = require('node:path');
 const redis = require('../../services/cache');
 
@@ -14,8 +14,7 @@ module.exports = async function (tenant, fileData, userId) {
 
     const storedName = path.basename(key);
 
-    const tenantDB = mongoose.connection.useDb(dbName);
-    const Document = tenantDB.models.Document || tenantDB.model('Document', documentSchema);
+    const Document = getTenantModel(dbName, 'Document', documentSchema);
 
     const document = await Document.create({
         tenantId,

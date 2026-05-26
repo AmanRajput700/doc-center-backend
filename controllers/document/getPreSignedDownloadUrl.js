@@ -1,5 +1,5 @@
 const documentSchema = require('../../models/tenant/documentSchema');
-const mongoose = require('mongoose');
+const getTenantModel = require('../../utils/getTenantModel');
 const createHttpError = require('http-errors');
 const { STATUS_CODE, ERROR_MESSAGE } = require('../../utils/constant');
 const { generateGetObjectUrl, generateDownloadObjectUrl } = require('../../services/s3.service');
@@ -7,9 +7,7 @@ const { generateGetObjectUrl, generateDownloadObjectUrl } = require('../../servi
 module.exports = async function (docId, tenant) {
     const { dbName, _id: tenantId } = tenant;
 
-    const tenantDB = mongoose.connection.useDb(dbName);
-
-    const Document = tenantDB.models.Document || tenantDB.model('Document', documentSchema);
+    const Document = getTenantModel(dbName, 'Document', documentSchema);
 
     const document = await Document.findOne({
         _id: docId,

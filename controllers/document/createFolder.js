@@ -1,19 +1,15 @@
-const mongoose = require('mongoose');
+const getTenantModel = require('../../utils/getTenantModel');
 const createHttpError = require('http-errors');
 const folderSchema = require('../../models/tenant/folderSchema');
 const { STATUS_CODE, ERROR_MESSAGE } = require('../../utils/constant');
 const redis = require('../../services/cache');
-
 
 module.exports = async function (userId, folderData, tenant) {
 
     const { name, parentFolderId = null } = folderData;
     const { dbName, _id: tenantId } = tenant;
 
-    const tenantDB = mongoose.connection.useDb(dbName);
-
-    const Folder = tenantDB.models.Folder || tenantDB.model('Folder', folderSchema);
-
+    const Folder = getTenantModel(dbName, 'Folder', folderSchema);;
     if (parentFolderId) {
         const parentFolder = await Folder.findOne({ _id: parentFolderId, isDeleted: false });
 

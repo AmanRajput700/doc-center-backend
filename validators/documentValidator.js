@@ -57,8 +57,25 @@ const folderCreateValidator = [
         .withMessage('Invalid parent folder id')
 ];
 
+const nameUpdateValidator = [
+    body('name')
+        .trim()
+        .notEmpty()
+        .withMessage('Folder name is required')
+        .isString()
+        .withMessage('Folder name must be a string')
+        .isLength({ min: 1, max: 100 })
+        .withMessage('Folder name must be between 1 and 100 characters'),
+
+    param('id')
+        .isMongoId()
+        .withMessage('Invalid document id')
+
+]
+
 module.exports = {
     documentUploadValidator,
     paramIdValidator,
-    folderCreateValidator
+    folderCreateValidator,
+    nameUpdateValidator
 }

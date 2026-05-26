@@ -1,4 +1,4 @@
-const { default: mongoose } = require('mongoose');
+const getTenantModel = require('../../utils/getTenantModel');
 const inviteMemberSchema = require('../../models/tenant/inviteMemberSchema');
 const inviteMemberEmail = require('../../utils/emails/inviteMemberEmail');
 const TenantUserMap = require('../../models/root/TenantUserMap');
@@ -19,8 +19,7 @@ module.exports = async function (invitedBy, userData, orgName, tenant) {
             throw new createHttpError(STATUS_CODE.CONFLICT, ERROR_MESSAGE.INVITE_ALREADY_SENT);
         }
     }
-    const tenantDB = mongoose.connection.useDb(tenant.dbName);
-    const InviteMember = tenantDB.models.InviteMember || tenantDB.model('InviteMember', inviteMemberSchema);
+    const InviteMember = getTenantModel(tenant.dbName, 'InviteMember', inviteMemberSchema);
     const existingInvite = await InviteMember.findOne({ email });
 
     if (existingInvite) {
