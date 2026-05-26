@@ -9,8 +9,10 @@ const authorize = require('../middleware/authorize');
 
 router.get('/', verifyToken, asyncHandler(async function _getUser(req, res, next) {
   const tenant = req.tenant;
-  const users = await require('../controllers/user/getUserByTenant')(tenant.dbName);
-  return res.status(200).json(new apiResponse({ users }, 200, 'User Fetched succesfully'));
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const { paginationData, users } = await require('../controllers/user/getUserByTenant')(page, limit, tenant.dbName);
+  return res.status(200).json(new apiResponse({ users, paginationData }, 200, 'User Fetched succesfully'));
 }));
 
 router.get('/me', verifyToken, asyncHandler(async function _me(req, res, next) {
