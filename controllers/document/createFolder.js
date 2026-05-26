@@ -9,7 +9,7 @@ module.exports = async function (userId, folderData, tenant) {
     let { name, parentFolderId = null } = folderData;
     const { dbName, _id: tenantId } = tenant;
 
-    const Folder = getTenantModel(dbName, 'Folder', folderSchema);;
+    const Folder = getTenantModel(dbName, 'Folder', folderSchema);
     if (parentFolderId) {
         const parentFolder = await Folder.findOne({ _id: parentFolderId, isDeleted: false });
 
@@ -18,12 +18,40 @@ module.exports = async function (userId, folderData, tenant) {
         }
     }
 
-    const folder = await Folder.create({
-        tenantId,
-        name,
-        parentFolderId,
-        createdBy: userId
-    });
+    const originalName = name;
+
+    let counter = 0;
+    let folder;
+
+    while (true) {
+
+        try {
+
+            const folderName =
+                counter === 0
+                    ? originalName
+                    : `${originalName}_${counter + 1}`;
+
+            folder = await Folder.create({
+                tenantId,
+                name: folderName,
+                parentFolderId,
+                createdBy: userId
+            });
+
+            break;
+
+        } catch (error) {
+
+            // Duplicate key error
+            if (error.code === 11000) {
+                counter++;
+                continue;
+            }
+
+            throw error;
+        }
+    }
 
     await redis.del(`Document:${dbName}:${parentFolderId || 'root'}`);
     return folder;
