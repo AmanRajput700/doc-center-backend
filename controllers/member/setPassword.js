@@ -29,7 +29,7 @@ module.exports = async function (userData) {
     const InviteMember = getTenantModel(mapping.tenantId.dbName, 'InviteMember', inviteMemberSchema);
 
     const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
-    const validMember = await InviteMember.findOne({ inviteToken: hashedToken, inviteTokenExpiry: { $gt: Date.now() } });
+    const validMember = await InviteMember.findOne({ inviteToken: hashedToken });
     if (!validMember) throw new createHttpError(STATUS_CODE.UNAUTHORIZED, ERROR_MESSAGE.INVALID_USER);
     const User = getTenantModel(mapping.tenantId.dbName, 'User', userSchema);
 
@@ -42,6 +42,6 @@ module.exports = async function (userData) {
         role: decoded.role
     });
     await TenantUserMap.updateOne({ email }, { $set: { status: 'active' } });
-    await InviteMember.updateOne({ email }, { $set: { status: 'accepted' }, $unset: { inviteToken: 1, inviteTokenExpiry: 1 } });
+    await InviteMember.updateOne({ email }, { $set: { status: 'accepted' }, $unset: { inviteToken: 1 } });
     await redis.del(`user:${mapping.tenantId.dbName}`);
 }
