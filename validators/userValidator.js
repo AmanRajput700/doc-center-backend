@@ -63,4 +63,10 @@ const validateIds = [
         .withMessage('Invalid roleId')
 ];
 
-module.exports = { updateUserValidator, changePasswordValidator, validateIds }
+const paramIdValidator = [
+    param('id')
+        .isMongoId()
+        .withMessage('Invalid userId'),
+]
+
+module.exports = { updateUserValidator, changePasswordValidator, validateIds,paramIdValidator }

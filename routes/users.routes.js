@@ -4,7 +4,7 @@ const verifyToken = require('../middleware/verifyToken');
 const apiResponse = require('../utils/apiResponse');
 const router = express.Router();
 const validate = require('../middleware/validate');
-const { updateUserValidator, changePasswordValidator, validateIds } = require('../validators/userValidator');
+const { updateUserValidator, changePasswordValidator, validateIds, paramIdValidator } = require('../validators/userValidator');
 const authorize = require('../middleware/authorize');
 
 router.get('/', verifyToken, asyncHandler(async function _getUser(req, res, next) {
@@ -38,6 +38,12 @@ router.post('/change-password', verifyToken, validate(changePasswordValidator), 
   const userId = req.user._id;
   await require('../controllers/user/changePassword')(data, userId, req.tenant.dbName);
   return res.status(200).json(new apiResponse({}, 200, 'User Password changed succesfully'));
-}))
+}));
+
+router.delete('/:id', verifyToken, authorize('delete_user'), validate(paramIdValidator), asyncHandler(async function _deleteUser(req, res, next) {
+  const userId = req.params.id;
+  const deletedUser = await require('../controllers/user/deleteUser')(userId, req.tenant.dbName);
+  return res.status(200).json(new apiResponse({ deletedUser }, 200, 'User delted Succesfully'));
+}));
 
 module.exports = router;
