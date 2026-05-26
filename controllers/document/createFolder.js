@@ -6,7 +6,7 @@ const redis = require('../../services/cache');
 
 module.exports = async function (userId, folderData, tenant) {
 
-    const { name, parentFolderId = null } = folderData;
+    let { name, parentFolderId = null } = folderData;
     const { dbName, _id: tenantId } = tenant;
 
     const Folder = getTenantModel(dbName, 'Folder', folderSchema);;
