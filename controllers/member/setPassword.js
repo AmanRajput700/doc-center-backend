@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const getTenantModel = require('../../utils/getTenantModel');
 const TenantUserMap = require('../../models/root/TenantUserMap');
 const userSchema = require('../../models/tenant/userSchema');
 const inviteMemberSchema = require('../../models/tenant/inviteMemberSchema');
@@ -19,23 +19,19 @@ module.exports = async function (userData) {
             process.env.JWT_EMAIL_VERIFY_SECRET
         );
     } catch (err) {
-        console.log('hello');
         throw new createHttpError(STATUS_CODE.UNAUTHORIZED, ERROR_MESSAGE.INVALID_USER);
     }
     const email = decoded.email;
 
     const mapping = await TenantUserMap.findOne({ email, status: 'pending' }).populate('tenantId', 'dbName');
     if (!mapping) throw new createHttpError(STATUS_CODE.UNAUTHORIZED, ERROR_MESSAGE.INVALID_USER);
-    console.log(mapping);
 
-    const tenantDB = mongoose.connection.useDb(mapping.tenantId.dbName);
-
-    const InviteMember = tenantDB.models.InviteMember || tenantDB.model('InviteMember', inviteMemberSchema);
+    const InviteMember = getTenantModel(mapping.tenantId.dbName, 'InviteMember', inviteMemberSchema);
 
     const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
     const validMember = await InviteMember.findOne({ inviteToken: hashedToken, inviteTokenExpiry: { $gt: Date.now() } });
     if (!validMember) throw new createHttpError(STATUS_CODE.UNAUTHORIZED, ERROR_MESSAGE.INVALID_USER);
-    const User = tenantDB.models.User || tenantDB.model('User', userSchema);
+    const User = getTenantModel(mapping.tenantId.dbName, 'User', userSchema);
 
     const existingUser = await User.findOne({ email });
     if (existingUser) throw new createHttpError(STATUS_CODE.CONFLICT, ERROR_MESSAGE.USER_ALREADY_EXISTS);

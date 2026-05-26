@@ -4,7 +4,7 @@ const asyncHandler = require('../utils/asyncHandler');
 const jwt = require('jsonwebtoken');
 const apiResponse = require('../utils/apiResponse');
 const validate = require('../middleware/validate');
-const { registerTenantValidator, resendEmailValidator } = require('../validators/tenantValidator');
+const { registerTenantValidator, resendEmailValidator, generatePreSignedUrlForLogoValidator } = require('../validators/tenantValidator');
 
 router.post('/register', validate(registerTenantValidator), asyncHandler(async function _register(req, res, next) {
     const tenantData = req.body;
@@ -20,7 +20,7 @@ router.post('/resend-email', validate(resendEmailValidator), asyncHandler(async 
     return res.status(200).json(new apiResponse({}, 200, 'Email sent succesfully'));
 }));
 
-router.post('/logo-upload-url', asyncHandler(async function _generatePreSignedUrlForLogo(req, res, next) {
+router.post('/logo-upload-url', validate(generatePreSignedUrlForLogoValidator), asyncHandler(async function _generatePreSignedUrlForLogo(req, res, next) {
     const logoData = req.body;
     const { key, url } = await require('../controllers/tenant/logoUploadPresignedUrl')(logoData);
     return res.status(200).json(new apiResponse({ key, url }, 200, 'Presigned Url generated succesfully'));

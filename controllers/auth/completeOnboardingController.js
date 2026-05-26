@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const TenantUserMap = require('../../models/root/TenantUserMap');
 const permissionSeeder = require('../../seeders/tenant/permissionSeeder');
 const roleSeeder = require('../../seeders/tenant/roleSeeder');
+const getTenantModel = require('../../utils/getTenantModel');
 
 module.exports = async function (userData) {
     const { password, confirmPassword, token } = userData;
@@ -17,7 +18,7 @@ module.exports = async function (userData) {
     if (!tenant) throw new createHttpError(STATUS_CODE.UNAUTHORIZED, ERROR_MESSAGE.INVALID_CREDENTIALS);
 
     const tenantDB = mongoose.connection.useDb(tenant.dbName);
-    const User = tenantDB.models.User || tenantDB.model('User', userSchema);
+    const User = getTenantModel(tenant.dbName,'User',userSchema);
     await permissionSeeder(tenantDB);
     const role = await roleSeeder(tenantDB);
     await User.create({

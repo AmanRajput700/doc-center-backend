@@ -1,12 +1,11 @@
-const mongoose = require('mongoose');
+const getTenantModel = require('../../utils/getTenantModel');
 const roleSchema = require('../../models/tenant/roleSchema');
 const permissionSchema = require('../../models/tenant/permissionSchema');
 const redis = require('../../services/cache');
 
 module.exports = async function (tenant) {
-    const tenantDB = mongoose.connection.useDb(tenant.dbName);
-    const Role = tenantDB.models.Role || tenantDB.model('Role', roleSchema);
-    const Permission = tenantDB.models.Permission || tenantDB.model('Permission', permissionSchema);
+    const Role = getTenantModel(tenant.dbName, 'Role', roleSchema);
+    const Permission = getTenantModel(tenant.dbName, 'Permission', permissionSchema);
 
     const roles = await redis.get(`roles:${tenant.dbName}`);
     if (roles) return JSON.parse(roles);

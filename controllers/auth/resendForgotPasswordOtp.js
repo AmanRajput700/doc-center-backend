@@ -2,7 +2,7 @@ const TenantUserMap = require('../../models/root/TenantUserMap');
 const createHttpError = require('http-errors');
 const { ERROR_MESSAGE, STATUS_CODE } = require('../../utils/constant');
 const resendForgotPasswordOtpEmail = require('../../utils/emails/resendForgotPasswordOtp');
-const mongoose = require('mongoose');
+const getTenantModel = require('../../utils/getTenantModel');
 const userSchema = require('../../models/tenant/userSchema');
 const TIME = require('../../utils/times.js')
 
@@ -11,8 +11,7 @@ module.exports = async function (email) {
     const tenant = await TenantUserMap.findOne({ email: normalizedEmail }).populate("tenantId", "slug dbName orgName");
     if (!tenant) throw new createHttpError(STATUS_CODE.UNPROCESSABLE_ENTITY, ERROR_MESSAGE.INVALID_CREDENTIALS);
 
-    const tenantDB = mongoose.connection.useDb(tenant.tenantId.dbName);
-    const User = tenantDB.models.User || tenantDB.model('User', userSchema);
+    const User = getTenantModel(tenant.tenantId.dbName, 'User', userSchema);
 
     const user = await User.findOne({ email: normalizedEmail });
     if (!user) throw new createHttpError(STATUS_CODE.UNPROCESSABLE_ENTITY, ERROR_MESSAGE.INVALID_CREDENTIALS);

@@ -2,7 +2,7 @@ const express = require('express');
 const asyncHandler = require('../utils/asyncHandler');
 const apiResponse = require('../utils/apiResponse');
 const router = express.Router();
-const { completeOnboardingValidator, loginValidator, emailValidator, resetPasswordValidator, otpValidator } = require('../validators/authValidator.js');
+const { completeOnboardingValidator, verifyTokenValidator, loginValidator, emailValidator, resetPasswordValidator, otpValidator } = require('../validators/authValidator.js');
 const validate = require('../middleware/validate');
 const verifyToken = require('../middleware/verifyToken.js');
 
@@ -70,7 +70,7 @@ router.get('/validate-secure-token', asyncHandler(async function _verifySetPassw
     return res.status(200).json(new apiResponse({ status }, 200, 'Token validate'));
 }));
 
-router.post('/validate-login-token', asyncHandler(async function _(req, res, next) {
+router.post('/validate-login-token', validate(verifyTokenValidator), asyncHandler(async function _(req, res, next) {
     const userData = req.body;
     await require('../controllers/auth/verify-login-token.js')(userData);
     return res.status(200).json(new apiResponse('', 200, 'Verified login token'));
