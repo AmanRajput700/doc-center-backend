@@ -28,7 +28,8 @@ router.delete('/:id', verifyToken, authorize('delete_role'), validate(paramIdVal
 router.put('/permissions/:id', verifyToken, authorize('assign_permission'), validate(updatePermissionValidator), asyncHandler(async function _updatePermission(req, res, next) {
     const roleId = req.params.id;
     const permissionData = req.body;
-    const updatedRole = await require('../controllers/role/updateRolePermission')(roleId, permissionData, req.tenant.dbName);
+    const userId = req.user._id;
+    const updatedRole = await require('../controllers/role/updateRolePermission')(roleId, userId, permissionData, req.tenant.dbName);
     return res.status(200).json(new apiResponse({ updatedRole }, 200, 'Permission updated succesfully'));
 }));
 
