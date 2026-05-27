@@ -7,7 +7,7 @@ const asyncHandler = require('../utils/asyncHandler');
 const apiResponse = require('../utils/apiResponse');
 const authorize = require('../middleware/authorize');
 const validate = require('../middleware/validate');
-const { documentUploadValidator, nameUpdateValidator, paramIdValidator, folderCreateValidator } = require('../validators/documentValidator');
+const { documentUploadValidator, generateDocumentShareUrlValidator, nameUpdateValidator, paramIdValidator, folderCreateValidator } = require('../validators/documentValidator');
 
 router.post('/presigned-upload-url', verifyToken, authorize('upload_document'), validate(documentUploadValidator), asyncHandler(async function _getPresignedUploadUrl(req, res, next) {
     const tenant = req.tenant;
@@ -99,6 +99,13 @@ router.get('/:id/download', verifyToken, authorize('download_document'), validat
     const docId = req.params.id;
     const url = await require('../controllers/document/getPreSignedDownloadUrl')(docId, req.tenant);
     return res.status(200).json(new apiResponse({ url }, 200, ' Download Url Generated Succesfully'));
+}));
+
+router.post('/:id/share', verifyToken, authorize('share_document'), validate(generateDocumentShareUrlValidator), asyncHandler(async function _generateDocShareLink(req, res, next) {
+    const docId = req.params.id;
+    const { expiryTime } = req.body;
+    const { url } = await require('../controllers/document/generateDocumentShareUrl')(expiryTime, docId, req.tenant.dbName);
+    return res.status(200).json(new apiResponse({ url }, 200, 'Document Share Uri generated'));
 }));
 
 module.exports = router;
