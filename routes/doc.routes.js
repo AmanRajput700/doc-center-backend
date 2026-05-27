@@ -104,7 +104,7 @@ router.get('/:id/download', verifyToken, authorize('download_document'), validat
 router.post('/:id/share', verifyToken, authorize('share_document'), validate(generateDocumentShareUrlValidator), asyncHandler(async function _generateDocShareLink(req, res, next) {
     const docId = req.params.id;
     const { expiryTime } = req.body;
-    const { url } = await require('../controllers/document/generateDocumentShareUrl')(expiryTime, docId, req.tenant.dbName);
+    const { url } = await require('../controllers/document/generateDocumentShareUrl')(expiryTime, docId, req.tenant.dbName, req.tenant._id);
     return res.status(200).json(new apiResponse({ url }, 200, 'Document Share Uri generated'));
 }));
 

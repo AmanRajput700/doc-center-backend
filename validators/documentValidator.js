@@ -85,7 +85,7 @@ const generateDocumentShareUrlValidator = [
             max: 60
         })
         .withMessage(
-            'Share link expiration must be between 1 and 3600 seconds'
+            'Share link expiration must be between 1 and 60 minutes'
         )
 ];
 
