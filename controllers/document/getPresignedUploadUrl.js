@@ -3,7 +3,6 @@ const { generateUploadUrl } = require('../../services/s3.service');
 const documentSchema = require('../../models/tenant/documentSchema');
 const getTenantModel = require('../../utils/getTenantModel');
 const path = require('node:path');
-const redis = require('../../services/cache');
 
 module.exports = async function (tenant, fileData, userId) {
     let { fileName, contentType, folderId = null, size } = fileData;
@@ -52,6 +51,5 @@ module.exports = async function (tenant, fileData, userId) {
         uploadStatus: 'pending'
     });
 
-    await redis.del(`Document:${dbName}:${folderId || 'root'}`);
     return { documentId: document._id, url, key };
 };

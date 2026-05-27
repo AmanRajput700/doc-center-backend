@@ -7,9 +7,21 @@ module.exports = async function (documentId, tenant) {
     const { dbName } = tenant;
     const Document = getTenantModel(dbName, 'Document', documentSchema);
 
-    const uploadedDocument = await Document.updateOne({ _id: documentId, uploadStatus: 'pending' }, { $set: { uploadStatus: 'uploaded' } });
-    if (uploadedDocument.matchedCount === 0) throw new createHttpError(STATUS_CODE.NOT_FOUND, ERROR_MESSAGE.DOC_NOT_FOUND);
+    const document = await Document.findOneAndUpdate(
+        {
+            _id: documentId,
+            uploadStatus: 'pending'
+        },
+        {
+            $set: {
+                uploadStatus: 'uploaded'
+            }
+        },
+        {
+            returnDocument: 'after'
+        }
+    );
+    if (!document) throw new createHttpError(STATUS_CODE.NOT_FOUND, ERROR_MESSAGE.DOC_NOT_FOUND);
 
-
-    return uploadedDocument;
+    return document;
 }

@@ -22,7 +22,6 @@ module.exports = async function (tenantData) {
 
     const token = tenant.generateSetPasswordToken();
     const verificationLink = `${process.env.FRONTEND_URL}/onboarding/activate?token=${token}`;
-    console.log(email);
     await tenantVerifyEmail(orgName, firstName, lastName, email, verificationLink);
     await tenant.save();
     return { orgName, orgSlogan, slug, firstName, lastName, email };
