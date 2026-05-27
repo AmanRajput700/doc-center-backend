@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-module.exports = new mongoose.Schema({
+const documentSchema = new mongoose.Schema({
     tenantId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Tenant',
@@ -9,6 +9,7 @@ module.exports = new mongoose.Schema({
     },
     originalFileName: {
         type: String,
+        index: true
     },
     storedName: {
         type: String
@@ -30,7 +31,8 @@ module.exports = new mongoose.Schema({
     },
     mimeType: {
         type: String,
-        required: true
+        required: true,
+        index: true
     },
     isDeleted: {
         type: Boolean,
@@ -55,3 +57,5 @@ module.exports = new mongoose.Schema({
         default: 'pending'
     }
 }, { timestamps: true });
+
+module.exports = documentSchema;

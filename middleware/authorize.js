@@ -2,6 +2,7 @@ const getTenantModel = require('../utils/getTenantModel');
 const mongoose = require('mongoose');
 const roleSchema = require('../models/tenant/roleSchema');
 const permissionSchema = require('../models/tenant/permissionSchema');
+const createHttpError = require('http-errors');
 
 const { STATUS_CODE, ERROR_MESSAGE } = require('../utils/constant');
 const Tenant = require('../models/root/Tenant');

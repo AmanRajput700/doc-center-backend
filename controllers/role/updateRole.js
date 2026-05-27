@@ -20,7 +20,7 @@ module.exports = async function (roleId, roleData, dbName) {
         throw new createHttpError(STATUS_CODE.CONFLICT, ERROR_MESSAGE.ROLE_ALREADY_EXISTS);
     }
 
-    const updatedRole = await Role.findByIdAndUpdate(roleId, { name, description }, { new: true });
+    const updatedRole = await Role.findByIdAndUpdate(roleId, { name, description }, {returnDocument: 'after'});
     await redis.del(`roles:${dbName}`);
     return updatedRole;
 }

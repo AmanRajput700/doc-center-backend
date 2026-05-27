@@ -8,7 +8,7 @@ module.exports = async function (folderId, data, dbName) {
     const { name } = data;
     const Folder = getTenantModel(dbName, 'Folder', folderSchema);
 
-    const updatedFolder = await Folder.findByIdAndUpdate(folderId, { name }, { new: true });
+    const updatedFolder = await Folder.findByIdAndUpdate(folderId, { name }, {returnDocument: 'after'});
     if (!updatedFolder) throw new createHttpError(STATUS_CODE.NOT_FOUND, ERROR_MESSAGE.FOLDER_NOT_FOUND);
     await redis.del(`Document:${dbName}:${updatedFolder.parentFolderId || 'root'}`);
     return updatedFolder;

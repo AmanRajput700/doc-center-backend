@@ -21,7 +21,7 @@ module.exports = async function (roleId, permissionData, dbName) {
     const permissionExists = await Permission.find({ _id: { $in: permissionIds } });
     if (permissionIds.length !== permissionExists.length) throw new createHttpError(STATUS_CODE.NOT_FOUND, ERROR_MESSAGE.PERMISSION_NOT_FOUND);
 
-    const updatedRole = await Role.findByIdAndUpdate(roleId, { permissions: permissionIds }, { new: true });
+    const updatedRole = await Role.findByIdAndUpdate(roleId, { permissions: permissionIds }, {returnDocument: 'after'});
     await redis.del(`roles:${dbName}`);
     return updatedRole;
 }

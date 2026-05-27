@@ -2,24 +2,88 @@ const createHttpError = require('http-errors');
 const getTenantModel = require('../../utils/getTenantModel');
 const documentSchema = require('../../models/tenant/documentSchema');
 const folderSchema = require('../../models/tenant/folderSchema');
-const redis = require('../../services/cache');
 const userSchema = require('../../models/tenant/userSchema');
 
-module.exports = async function (dbName, parentId) {
 
-    const cachedDocs = await redis.get(`Document:${dbName}:${parentId || 'root'}`);
-    if (cachedDocs) return JSON.parse(cachedDocs);
+module.exports = async function (dbName, parentId, q, name, date, size) {
+
 
     const Document = getTenantModel(dbName, 'Document', documentSchema);
     const Folder = getTenantModel(dbName, 'Folder', folderSchema);
-    const User = getTenantModel(dbName, 'User', userSchema);
 
-    const docQuery = { isDeleted: false, folderId: parentId || null };
-    const folderQuery = { isDeleted: false, parentFolderId: parentId || null };
-    const docs = await Document.find(docQuery).populate('uploadedBy', 'firstName lastName email').sort({ createdAt: -1 });
-    const folder = await Folder.find(folderQuery).populate('createdBy', 'firstName lastName email').sort({ createdAt: -1 });
+    const searchFilterForFolder = q
+        ? {
+            name: {
+                $regex: q,
+                $options: 'i'
+            }
+        }
+        : {};
+
+    const searchFilterForDocument = q
+        ? {
+            originalFileName: {
+                $regex: q,
+                $options: 'i'
+            }
+        }
+        : {};
+
+    let sortFilterFolder = {};
+    let sortFilterDocs = {};
+
+    if (name) {
+        if (name === 'asc') {
+            sortFilterFolder.name = 1;
+            sortFilterDocs.originalFileName = 1
+        } else if (name === 'desc') {
+            sortFilterFolder.name = -1;
+            sortFilterDocs.originalFileName = -1
+        }
+    }
+    if (date) {
+        if (date === 'asc') {
+            sortFilterFolder.createdAt = 1;
+            sortFilterDocs.createdAt = 1
+        } else if (date === 'desc') {
+            sortFilterFolder.createdAt = -1;
+            sortFilterDocs.createdAt = -1
+        }
+    }
+    if (size) {
+        if (size === 'asc') {
+            sortFilterDocs.size = 1
+        } else if (size === 'desc') {
+            sortFilterDocs.size = -1
+        }
+    }
+
+
+
+
+    const docQuery = {
+        isDeleted: false,
+        uploadStatus: 'uploaded',
+        folderId: parentId || null,
+        ...searchFilterForDocument
+    };
+
+    const folderQuery = {
+        isDeleted: false,
+        parentFolderId: parentId || null,
+        ...searchFilterForFolder
+    };
+
+    const docs = await Document.find(docQuery)
+        .populate('uploadedBy', 'firstName lastName email')
+        .sort(sortFilterDocs);
+
+    const folder = await Folder.find(folderQuery)
+        .populate('createdBy', 'firstName lastName email')
+        .sort(sortFilterFolder);
+
     const response = { docs, folder };
-    await redis.set(`Document:${dbName}:${parentId || 'root'}`, JSON.stringify(response), 'EX', 300);
-    if (docs.length === 0 && folder.length === 0) return [];
+
+
     return response;
-}
+};

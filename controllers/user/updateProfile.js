@@ -11,6 +11,6 @@ module.exports = async function (userData, userId, dbName) {
     const userExists = await User.findById(userId);
     if (!userExists) throw new createHttpError(STATUS_CODE.NOT_FOUND, ERROR_MESSAGE.USER_NOT_FOUND);
 
-    const updatedUser = await User.findByIdAndUpdate(userId, { firstName, lastName }, { new: true }).select('-otpAttempts -failedLogInAttempts -lastLogin').lean();
+    const updatedUser = await User.findByIdAndUpdate(userId, { firstName, lastName }, {returnDocument: 'after'}).select('-otpAttempts -failedLogInAttempts -lastLogin').lean();
     return updatedUser;
 }
