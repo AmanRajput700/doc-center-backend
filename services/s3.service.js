@@ -21,16 +21,16 @@ async function generateUploadUrl(key, contentType) {
     return url;
 }
 
-async function generateGetObjectUrl(key) {
-    const commmand = new GetObjectCommand({
+async function generateGetObjectUrl(key, time) {
+    const command = new GetObjectCommand({
         Bucket: process.env.AWS_BUCKET_NAME,
         Key: key,
     });
     const url = await getSignedUrl(
         s3Client,
-        commmand,
+        command,
         {
-            expiresIn: 60
+            expiresIn: time
         }
     );
     return url;

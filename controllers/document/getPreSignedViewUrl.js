@@ -16,6 +16,6 @@ module.exports = async function (docId, tenant) {
     });
     if (!document) throw new createHttpError(STATUS_CODE.NOT_FOUND, ERROR_MESSAGE.DOC_NOT_FOUND);
 
-    const url = await generateGetObjectUrl(document.s3Key);
+    const url = await generateGetObjectUrl(document.s3Key, process.env.AWS_VIEW_PRESIGNED_EXPIRY);
     return { url };
 };

@@ -71,11 +71,28 @@ const nameUpdateValidator = [
         .isMongoId()
         .withMessage('Invalid document id')
 
-]
+];
+
+
+const generateDocumentShareUrlValidator = [
+
+    body('expiryTime')
+        .exists()
+        .withMessage('Time is required')
+        .bail()
+        .isInt({
+            min: 1,
+            max: 60
+        })
+        .withMessage(
+            'Share link expiration must be between 1 and 60 minutes'
+        )
+];
 
 module.exports = {
     documentUploadValidator,
     paramIdValidator,
     folderCreateValidator,
-    nameUpdateValidator
+    nameUpdateValidator,
+    generateDocumentShareUrlValidator
 }
