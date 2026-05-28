@@ -30,6 +30,6 @@ router.get('/logo-url', asyncHandler(async function _getLogoUrl(req, res, next) 
     const slug = req.query.slug;
     const url = await require('../controllers/tenant/logoViewPresignedUrl')(slug);
     return res.status(200).json(new apiResponse({ url }, 200, 'Presigned Url generated succesfully'));
-}))
+}));
 
 module.exports = router;

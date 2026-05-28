@@ -1,4 +1,3 @@
-const jwt = require('jsonwebtoken');
 const createHttpError = require('http-errors');
 const Tenant = require('../../models/root/Tenant');
 const { ERROR_MESSAGE, STATUS_CODE } = require('../../utils/constant');
@@ -16,5 +15,4 @@ module.exports = async function (expiredToken) {
     await tenant.save();
     const verificationLink = `${process.env.FRONTEND_URL}/onboarding/activate?token=${token}`;
     await tenantVerifyEmail(tenant.orgName, tenant.applicant.firstName, tenant.applicant.lastName, tenant.applicant.email, verificationLink);
-
-}
+};

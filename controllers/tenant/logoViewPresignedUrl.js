@@ -9,4 +9,4 @@ module.exports = async function (slug) {
 
     const url = await generateGetObjectUrl(tenant.logo);
     return url;
-}
+};
