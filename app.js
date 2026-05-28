@@ -3,6 +3,8 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+//require('./jobs/deleteS3Documents');
+require('./jobs/deleteInvitedUser');
 
 var indexRouter = require('./routes/index');
 
@@ -22,6 +24,7 @@ app.use(
     credentials: true
   })
 );
+app.options('*', cors());
 
 app.use(logger('dev'));
 app.use(express.json());

@@ -1,15 +1,14 @@
 const userSchema = require('../../models/tenant/userSchema');
 const roleSchema = require('../../models/tenant/roleSchema');
 const permissionSchema = require('../../models/tenant/permissionSchema');
-const mongoose = require('mongoose');
+const getTenantModel = require('../../utils/getTenantModel');
 const createHttpError = require('http-errors');
 const { STATUS_CODE, ERROR_MESSAGE } = require('../../utils/constant');
 
 module.exports = async function (userId, dbName) {
-    const tenantDB = mongoose.connection.useDb(dbName);
-    const User = tenantDB.models.User || tenantDB.model('User', userSchema);
-    const Role = tenantDB.models.Role || tenantDB.model('Role', roleSchema);
-    const Permission = tenantDB.models.Permission || tenantDB.model('Permission', permissionSchema);
+    const User = getTenantModel(dbName, 'User', userSchema);
+    const Role = getTenantModel(dbName, 'Role', roleSchema);
+    const Permission = getTenantModel(dbName, 'Permission', permissionSchema);
 
     const user = await User.findById(userId)
         .populate({

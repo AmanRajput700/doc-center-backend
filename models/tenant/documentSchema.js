@@ -1,22 +1,22 @@
 const mongoose = require('mongoose');
 
-module.exports = new mongoose.Schema({
-    name: {
-        type: String,
+const documentSchema = new mongoose.Schema({
+    tenantId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Tenant',
         required: true,
-        trim: true,
+        index: true
     },
     originalFileName: {
         type: String,
+        index: true
     },
-    type: {
-        type: String,
-        enum: ['file', 'folder'],
-        default: 'file',
+    storedName: {
+        type: String
     },
-    parentId: {
+    folderId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Document',
+        ref: 'Folder',
         default: null
     },
     uploadedBy: {
@@ -29,16 +29,33 @@ module.exports = new mongoose.Schema({
         default: 0,
         min: 0,
     },
-    url: {
+    mimeType: {
         type: String,
-        trim: true,
+        required: true,
+        index: true
     },
     isDeleted: {
         type: Boolean,
         default: false,
+        index: true
     },
     deletedAt: {
         type: Date,
         default: null,
     },
+    s3Key: {
+        type: String,
+        required: true
+    },
+    storageProvide: {
+        type: String,
+        default: 's3'
+    },
+    uploadStatus: {
+        type: String,
+        enum: ['pending', 'uploaded', 'failed'],
+        default: 'pending'
+    }
 }, { timestamps: true });
+
+module.exports = documentSchema;

@@ -1,10 +1,8 @@
 const permissionSchema = require('../../models/tenant/permissionSchema');
-const mongoose = require('mongoose');
+const getTenantModel = require('../../utils/getTenantModel');
 
 module.exports = async function (dbName) {
-    const tenantDB = mongoose.connection.useDb(dbName);
-
-    const Permission = tenantDB.models.Permission || tenantDB.model('Permission', permissionSchema);
+    const Permission = getTenantModel(dbName, 'Permission', permissionSchema);
     const permissionCatalog = await Permission.aggregate([
         {
             $group: {

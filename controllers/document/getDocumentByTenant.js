@@ -1,17 +1,89 @@
 const createHttpError = require('http-errors');
-const mongoose = require('mongoose');
+const getTenantModel = require('../../utils/getTenantModel');
 const documentSchema = require('../../models/tenant/documentSchema');
-const redis = require('../../services/cache');
+const folderSchema = require('../../models/tenant/folderSchema');
+const userSchema = require('../../models/tenant/userSchema');
 
-module.exports = async function (dbName, parentId) {
-    const tenantDB = mongoose.connection.useDb(dbName);
 
-    const cachedDocs = await redis.get(`Document:${dbName}:${parentId || 'root'}`);
-    if (cachedDocs) return JSON.parse(cachedDocs);
-    const Document = tenantDB.models.Document || tenantDB.model('Document', documentSchema);
-    const query = { isDeleted: false, parentId: parentId || null };
-    const docs = await Document.find(query).sort({ createdAt: -1 });
-    await redis.set(`Document:${dbName}:${parentId || 'root'}`, JSON.stringify(docs), 'EX', 300);
-    if (docs.length === 0) return [];
-    return docs;
-}
+module.exports = async function (dbName, parentId, q, name, createdAt, size) {
+
+
+    const Document = getTenantModel(dbName, 'Document', documentSchema);
+    const Folder = getTenantModel(dbName, 'Folder', folderSchema);
+
+    const searchFilterForFolder = q
+        ? {
+            name: {
+                $regex: q,
+                $options: 'i'
+            }
+        }
+        : {};
+
+    const searchFilterForDocument = q
+        ? {
+            originalFileName: {
+                $regex: q,
+                $options: 'i'
+            }
+        }
+        : {};
+
+    let sortFilterFolder = {};
+    let sortFilterDocs = {};
+
+    if (name) {
+        if (name === 'asc') {
+            sortFilterFolder = { name: 1 };
+            sortFilterDocs = { originalFileName: 1 };
+        } else if (name === 'desc') {
+            sortFilterFolder = { name: -1 };
+            sortFilterDocs = { originalFileName: -1 };
+        }
+    }
+    else if (createdAt) {
+        if (createdAt === 'asc') {
+            sortFilterFolder = { createdAt: 1 };
+            sortFilterDocs = { createdAt: 1 };
+        } else if (createdAt === 'desc') {
+            sortFilterFolder = { createdAt: -1 };
+            sortFilterDocs = { createdAt: -1 };
+        }
+    }
+    else if (size) {
+        if (size === 'asc') {
+            sortFilterDocs = { size: 1 };
+        } else if (size === 'desc') {
+            sortFilterDocs = { size: -1 };
+        }
+    }
+
+
+
+
+    const docQuery = {
+        isDeleted: false,
+        uploadStatus: 'uploaded',
+        folderId: parentId || null,
+        ...searchFilterForDocument
+    };
+
+    const folderQuery = {
+        isDeleted: false,
+        parentFolderId: parentId || null,
+        ...searchFilterForFolder
+    };
+
+    const docs = await Document.find(docQuery)
+        .populate('uploadedBy', 'firstName lastName email')
+        .sort(sortFilterDocs);
+
+    const folder = await Folder.find(folderQuery)
+        .populate('createdBy', 'firstName lastName email')
+        .sort(sortFilterFolder);
+
+    const response = { docs, folder };
+
+
+    return response;
+};

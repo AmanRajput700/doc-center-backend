@@ -1,4 +1,4 @@
-const { body } = require('express-validator');
+const { body, param } = require('express-validator');
 const createHttpError = require('http-errors');
 const { STATUS_CODE, ERROR_MESSAGE } = require('../utils/constant');
 
@@ -53,4 +53,20 @@ const changePasswordValidator = [
         )
 ];
 
-module.exports = { updateUserValidator, changePasswordValidator }
+const validateIds = [
+    param('userId')
+        .isMongoId()
+        .withMessage('Invalid userId'),
+
+    param('roleId')
+        .isMongoId()
+        .withMessage('Invalid roleId')
+];
+
+const paramIdValidator = [
+    param('id')
+        .isMongoId()
+        .withMessage('Invalid userId'),
+]
+
+module.exports = { updateUserValidator, changePasswordValidator, validateIds,paramIdValidator }

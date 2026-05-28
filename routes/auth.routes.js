@@ -2,15 +2,15 @@ const express = require('express');
 const asyncHandler = require('../utils/asyncHandler');
 const apiResponse = require('../utils/apiResponse');
 const router = express.Router();
-const { completeOnboardingValidator, loginValidator, emailValidator, resetPasswordValidator, otpValidator } = require('../validators/authValidator.js');
+const { completeOnboardingValidator, verifyTokenValidator, loginValidator, emailValidator, resetPasswordValidator, otpValidator } = require('../validators/authValidator.js');
 const validate = require('../middleware/validate');
 const verifyToken = require('../middleware/verifyToken.js');
 
 
 router.post('/forgot-password', validate(emailValidator), asyncHandler(async function _forgotPassword(req, res, next) {
     const userData = req.body;
-    const emailVerifyToken = await require('../controllers/auth/forgot-password.js')(userData);
-    return res.status(200).json(new apiResponse({ emailVerifyToken }, 200, 'OTP sent succesfully if account exists'));
+    const expiryTime = await require('../controllers/auth/forgot-password.js')(userData);
+    return res.status(200).json(new apiResponse({ expiryTime }, 200, 'OTP sent succesfully if account exists'));
 }));
 
 router.post('/verify-forgot-password-otp', validate(otpValidator), asyncHandler(async function _verifyOtp(req, res, next) {
@@ -27,8 +27,8 @@ router.post('/reset-password', validate(resetPasswordValidator), asyncHandler(as
 
 router.post('/resend-otp', validate(emailValidator), asyncHandler(async function _resendOtp(req, res, next) {
     const email = req.body.email;
-    await require('../controllers/auth/resendForgotPasswordOtp.js')(email);
-    return res.status(200).json(new apiResponse({}, 200, 'OTP re-send succesfully'));
+    const expiryTime = await require('../controllers/auth/resendForgotPasswordOtp.js')(email);
+    return res.status(200).json(new apiResponse({ expiryTime }, 200, 'OTP re-send succesfully'));
 }))
 
 router.post('/complete-onboarding', validate(completeOnboardingValidator), asyncHandler(async function _completeOnboarding(req, res, next) {
@@ -70,7 +70,7 @@ router.get('/validate-secure-token', asyncHandler(async function _verifySetPassw
     return res.status(200).json(new apiResponse({ status }, 200, 'Token validate'));
 }));
 
-router.post('/validate-login-token', asyncHandler(async function _(req, res, next) {
+router.post('/validate-login-token', validate(verifyTokenValidator), asyncHandler(async function _(req, res, next) {
     const userData = req.body;
     await require('../controllers/auth/verify-login-token.js')(userData);
     return res.status(200).json(new apiResponse('', 200, 'Verified login token'));

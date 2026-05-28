@@ -2,7 +2,7 @@ const TenantUserMap = require('../../models/root/TenantUserMap');
 const createHttpError = require('http-errors');
 const { ERROR_MESSAGE, STATUS_CODE } = require('../../utils/constant');
 const Tenant = require('../../models/root/Tenant');
-const mongoose = require('mongoose');
+const getTenantModel = require('../../utils/getTenantModel');
 const userSchema = require('../../models/tenant/userSchema');
 const tokenGenrator = require('../../utils/tokenGenrator');
 const jwt = require('jsonwebtoken');
@@ -14,9 +14,8 @@ module.exports = async function (userData) {
     const mapping = await TenantUserMap.findOne({ email }).populate("tenantId", "slug dbName");
     if (!mapping || mapping.tenantId.slug !== slug) throw new createHttpError(STATUS_CODE.NOT_FOUND, ERROR_MESSAGE.USER_NOT_FOUND);
 
-    const tenantDB = mongoose.connection.useDb(mapping.tenantId.dbName);
-    const Role = tenantDB.models.Role || tenantDB.model('Role', roleSchema);
-    const User = tenantDB.models.User || tenantDB.model('User', userSchema);
+    const Role = getTenantModel(mapping.tenantId.dbName, 'Role', roleSchema);
+    const User = getTenantModel(mapping.tenantId.dbName, 'User', userSchema);
     const user = await User.findOne({ email }).populate('role', 'name').select("+password");
     if (!user) throw new createHttpError(STATUS_CODE.NOT_FOUND, ERROR_MESSAGE.USER_NOT_FOUND);
 

@@ -23,9 +23,6 @@ const inviteMemberSchema = new mongoose.Schema({
     inviteToken: {
         type: String
     },
-    inviteTokenExpiry: {
-        type: Date
-    },
     status: {
         type: String,
         enum: [
@@ -50,7 +47,6 @@ inviteMemberSchema.methods.generateInviteToken = function () {
             expiresIn: process.env.JWT_EMAIL_VERIFY_EXPIRY
         });
     this.inviteToken = crypto.createHash('sha256').update(token).digest('hex');
-    this.inviteTokenExpiry = TIME.INVITE_EMAIL_EXPIRY;
     return token;
 }
 

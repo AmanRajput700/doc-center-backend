@@ -4,12 +4,18 @@ const verifyToken = require('../middleware/verifyToken');
 const apiResponse = require('../utils/apiResponse');
 const router = express.Router();
 const validate = require('../middleware/validate');
-const { updateUserValidator, changePasswordValidator } = require('../validators/userValidator')
+const { updateUserValidator, changePasswordValidator, validateIds, paramIdValidator } = require('../validators/userValidator');
+const authorize = require('../middleware/authorize');
 
-router.get('/', verifyToken, asyncHandler(async function _getUser(req, res, next) {
+router.get('/', verifyToken, authorize('view_user'), asyncHandler(async function _getUser(req, res, next) {
   const tenant = req.tenant;
-  const users = await require('../controllers/user/getUserByTenant')(tenant.dbName);
-  return res.status(200).json(new apiResponse({ users }, 200, 'User Fetched succesfully'));
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const q = req.query.q;
+  const type = req.query.type;
+  const queryData = { page, limit, q, type }
+  const { paginationData, users } = await require('../controllers/user/getUserByTenant')(queryData, tenant.dbName);
+  return res.status(200).json(new apiResponse({ users, paginationData }, 200, 'User Fetched succesfully'));
 }));
 
 router.get('/me', verifyToken, asyncHandler(async function _me(req, res, next) {
@@ -25,11 +31,24 @@ router.put('/', verifyToken, validate(updateUserValidator), asyncHandler(async f
   return res.status(200).json(new apiResponse({ updatedUser }, 200, 'User Data updated succesfully'));
 }));
 
+router.put('/:userId/roles/:roleId', verifyToken, authorize('assign_role'), validate(validateIds), asyncHandler(async function _updateUserRole(req, res, next) {
+  const userId = req.params.userId;
+  const roleId = req.params.roleId;
+  const updateduser = await require('../controllers/user/assignRoleToUser')(userId, roleId, req.tenant.dbName);
+  return res.status(200).json(new apiResponse({ updateduser }, 200, 'Role updated succesfully'));
+}));
+
 router.post('/change-password', verifyToken, validate(changePasswordValidator), asyncHandler(async function _changePassword(req, res, next) {
   const data = req.body;
   const userId = req.user._id;
   await require('../controllers/user/changePassword')(data, userId, req.tenant.dbName);
   return res.status(200).json(new apiResponse({}, 200, 'User Password changed succesfully'));
-}))
+}));
+
+router.delete('/:id', verifyToken, authorize('delete_user'), validate(paramIdValidator), asyncHandler(async function _deleteUser(req, res, next) {
+  const userId = req.params.id;
+  const deletedUser = await require('../controllers/user/deleteUser')(userId, req.tenant.dbName);
+  return res.status(200).json(new apiResponse({ deletedUser }, 200, 'User delted Succesfully'));
+}));
 
 module.exports = router;
