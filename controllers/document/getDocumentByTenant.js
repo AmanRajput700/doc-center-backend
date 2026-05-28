@@ -5,7 +5,7 @@ const folderSchema = require('../../models/tenant/folderSchema');
 const userSchema = require('../../models/tenant/userSchema');
 
 
-module.exports = async function (dbName, parentId, q, name, date, size) {
+module.exports = async function (dbName, parentId, q, name, createdAt, size) {
 
 
     const Document = getTenantModel(dbName, 'Document', documentSchema);
@@ -34,27 +34,27 @@ module.exports = async function (dbName, parentId, q, name, date, size) {
 
     if (name) {
         if (name === 'asc') {
-            sortFilterFolder.name = 1;
-            sortFilterDocs.originalFileName = 1
+            sortFilterFolder = { name: 1 };
+            sortFilterDocs = { originalFileName: 1 };
         } else if (name === 'desc') {
-            sortFilterFolder.name = -1;
-            sortFilterDocs.originalFileName = -1
+            sortFilterFolder = { name: -1 };
+            sortFilterDocs = { originalFileName: -1 };
         }
     }
-    if (date) {
-        if (date === 'asc') {
-            sortFilterFolder.createdAt = 1;
-            sortFilterDocs.createdAt = 1
-        } else if (date === 'desc') {
-            sortFilterFolder.createdAt = -1;
-            sortFilterDocs.createdAt = -1
+    else if (createdAt) {
+        if (createdAt === 'asc') {
+            sortFilterFolder = { createdAt: 1 };
+            sortFilterDocs = { createdAt: 1 };
+        } else if (createdAt === 'desc') {
+            sortFilterFolder = { createdAt: -1 };
+            sortFilterDocs = { createdAt: -1 };
         }
     }
-    if (size) {
+    else if (size) {
         if (size === 'asc') {
-            sortFilterDocs.size = 1
+            sortFilterDocs = { size: 1 };
         } else if (size === 'desc') {
-            sortFilterDocs.size = -1
+            sortFilterDocs = { size: -1 };
         }
     }
 
