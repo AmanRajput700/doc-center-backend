@@ -13,17 +13,15 @@ module.exports = async function (tenantData) {
     const isTenantSlugExists = await Tenant.findOne({ slug });
     if (isTenantSlugExists) throw new createHttpError(STATUS_CODE.CONFLICT, ERROR_MESSAGE.INVALID_SLUG);
 
+    const isTenantEmailExists = await Tenant.findOne({ 'applicant.email': email });
+    if (isTenantEmailExists) throw new createHttpError(STATUS_CODE.CONFLICT, ERROR_MESSAGE.EMAIL_ALREAY_EXISTS);
+
     const dbName = `db_${slug}`;
     const applicant = { firstName, lastName, email };
 
-    let tenant;
-    try {
-        tenant = await Tenant.create({
-            orgName, orgSlogan, slug, logo: logoKey, applicant, dbName
-        });
-    } catch (error) {
-        if (error.status = 11000) throw new createHttpError(STATUS_CODE.CONFLICT, ERROR_MESSAGE.EMAIL_ALREAY_EXISTS);
-    }
+    const tenant = await Tenant.create({
+        orgName, orgSlogan, slug, logo: logoKey, applicant, dbName
+    });
 
     const token = tenant.generateSetPasswordToken();
     const verificationLink = `${process.env.FRONTEND_URL}/onboarding/activate?token=${token}`;

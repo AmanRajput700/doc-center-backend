@@ -39,5 +39,5 @@ module.exports = async function (userData) {
     user.lastLogin = Date.now();
     await user.save();
     user.password = undefined;
-    return { user, slug: mapping.tenantId.slug, refreshToken, accessToken };
+    return {  refreshToken, accessToken };
 }
