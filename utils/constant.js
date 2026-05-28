@@ -3,8 +3,8 @@ const ERROR_MESSAGE = {
 
   TENANT_ALREADY_EXISTS: 'A tenant with the provided details already exists.',
   TENANT_NOT_FOUND: 'Tenant not found.',
-  INVALID_SLUG: 'The provided slug is invalid.',
-  INVALID_ORGNAME: 'The provided organization name is invalid.',
+  INVALID_SLUG: 'Tenant already exists with same slug.',
+  INVALID_ORGNAME: 'Tenant already exists with same orgName.',
   INVALID_OTP: 'The provided otp is invalid.',
 
   USER_NOT_FOUND: 'User not found.',
@@ -32,7 +32,8 @@ const ERROR_MESSAGE = {
   PERMISSION_NOT_FOUND: 'Permission ID not found',
 
 
-  SLUG_NOT_FOUND: 'Slug Not Found'
+  SLUG_NOT_FOUND: 'Slug Not Found',
+  EMAIL_ALREAY_EXISTS: 'Email Already Exists'
 };
 
 const STATUS_CODE = Object.freeze({

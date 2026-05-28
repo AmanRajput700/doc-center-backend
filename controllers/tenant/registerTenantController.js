@@ -16,9 +16,14 @@ module.exports = async function (tenantData) {
     const dbName = `db_${slug}`;
     const applicant = { firstName, lastName, email };
 
-    const tenant = await Tenant.create({
-        orgName, orgSlogan, slug, logo: logoKey, applicant, dbName
-    });
+    let tenant;
+    try {
+        tenant = await Tenant.create({
+            orgName, orgSlogan, slug, logo: logoKey, applicant, dbName
+        });
+    } catch (error) {
+        if (error.status = 11000) throw new createHttpError(STATUS_CODE.CONFLICT, ERROR_MESSAGE.EMAIL_ALREAY_EXISTS);
+    }
 
     const token = tenant.generateSetPasswordToken();
     const verificationLink = `${process.env.FRONTEND_URL}/onboarding/activate?token=${token}`;
