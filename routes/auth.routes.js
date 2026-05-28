@@ -9,8 +9,8 @@ const verifyToken = require('../middleware/verifyToken.js');
 
 router.post('/forgot-password', validate(emailValidator), asyncHandler(async function _forgotPassword(req, res, next) {
     const userData = req.body;
-    const emailVerifyToken = await require('../controllers/auth/forgot-password.js')(userData);
-    return res.status(200).json(new apiResponse({ emailVerifyToken }, 200, 'OTP sent succesfully if account exists'));
+    const expiryTime = await require('../controllers/auth/forgot-password.js')(userData);
+    return res.status(200).json(new apiResponse({ expiryTime }, 200, 'OTP sent succesfully if account exists'));
 }));
 
 router.post('/verify-forgot-password-otp', validate(otpValidator), asyncHandler(async function _verifyOtp(req, res, next) {
@@ -27,8 +27,8 @@ router.post('/reset-password', validate(resetPasswordValidator), asyncHandler(as
 
 router.post('/resend-otp', validate(emailValidator), asyncHandler(async function _resendOtp(req, res, next) {
     const email = req.body.email;
-    await require('../controllers/auth/resendForgotPasswordOtp.js')(email);
-    return res.status(200).json(new apiResponse({}, 200, 'OTP re-send succesfully'));
+    const expiryTime = await require('../controllers/auth/resendForgotPasswordOtp.js')(email);
+    return res.status(200).json(new apiResponse({ expiryTime }, 200, 'OTP re-send succesfully'));
 }))
 
 router.post('/complete-onboarding', validate(completeOnboardingValidator), asyncHandler(async function _completeOnboarding(req, res, next) {
