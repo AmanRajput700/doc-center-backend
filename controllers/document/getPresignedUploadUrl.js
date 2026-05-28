@@ -5,7 +5,7 @@ const getTenantModel = require('../../utils/getTenantModel');
 const path = require('node:path');
 
 module.exports = async function (tenant, fileData, userId) {
-    let { fileName, contentType, folderId = null, size } = fileData;
+    let { fileName, contentType, folderId = 'root', size } = fileData;
     const { slug: tenantSlug, dbName, _id: tenantId } = tenant;
 
     const ext = path.extname(fileName);
@@ -19,7 +19,7 @@ module.exports = async function (tenant, fileData, userId) {
     const Document = getTenantModel(dbName, 'Document', documentSchema);
 
     const existingDocs = await Document.find({
-        originalFileName: new RegExp(`^${baseName}(_\\d+)?${ext}$`, 'i')
+        originalFileName: new RegExp(`^${baseName}(_\\d+)?${ext}$`, 'i'), folderId
     }).sort({ createdAt: -1 });
 
     if (existingDocs.length > 0) {
