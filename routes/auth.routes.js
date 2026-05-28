@@ -6,7 +6,6 @@ const { completeOnboardingValidator, verifyTokenValidator, loginValidator, email
 const validate = require('../middleware/validate');
 const verifyToken = require('../middleware/verifyToken.js');
 
-
 router.post('/forgot-password', validate(emailValidator), asyncHandler(async function _forgotPassword(req, res, next) {
     const userData = req.body;
     const expiryTime = await require('../controllers/auth/forgot-password.js')(userData);
@@ -23,13 +22,13 @@ router.post('/reset-password', validate(resetPasswordValidator), asyncHandler(as
     const userData = req.body;
     const response = await require('../controllers/auth/reset-password.js')(userData);
     return res.status(200).json(new apiResponse('', 200, 'Password Set successfully'));
-}))
+}));
 
 router.post('/resend-otp', validate(emailValidator), asyncHandler(async function _resendOtp(req, res, next) {
     const email = req.body.email;
     const expiryTime = await require('../controllers/auth/resendForgotPasswordOtp.js')(email);
     return res.status(200).json(new apiResponse({ expiryTime }, 200, 'OTP re-send succesfully'));
-}))
+}));
 
 router.post('/complete-onboarding', validate(completeOnboardingValidator), asyncHandler(async function _completeOnboarding(req, res, next) {
     const userData = req.body;
@@ -54,8 +53,8 @@ router.post('/login', validate(loginValidator), asyncHandler(async function _log
 
 router.post('/verify-email', validate(emailValidator), asyncHandler(async function _verifyEmail(req, res, next) {
     const email = req.body.email;
-    const { slug, emailVerifyToken } = await require('../controllers/auth/verifyEmail.js')(email);
-    return res.status(200).json(new apiResponse({ slug, emailVerifyToken }, 200, 'Email exists'));
+    const { slug } = await require('../controllers/auth/verifyEmail.js')(email);
+    return res.status(200).json(new apiResponse({ slug }, 200, 'Email exists'));
 }));
 
 router.post('/refresh-access-token', asyncHandler(async function _refreshAccessToken(req, res, next) {
@@ -70,21 +69,17 @@ router.get('/validate-secure-token', asyncHandler(async function _verifySetPassw
     return res.status(200).json(new apiResponse({ status }, 200, 'Token validate'));
 }));
 
-router.post('/validate-login-token', validate(verifyTokenValidator), asyncHandler(async function _(req, res, next) {
-    const userData = req.body;
-    await require('../controllers/auth/verify-login-token.js')(userData);
-    return res.status(200).json(new apiResponse('', 200, 'Verified login token'));
-}));
+// router.post('/validate-login-token', validate(verifyTokenValidator), asyncHandler(async function _(req, res, next) {
+//     const userData = req.body;
+//     await require('../controllers/auth/verify-login-token.js')(userData);
+//     return res.status(200).json(new apiResponse('', 200, 'Verified login token'));
+// }));
 
 router.post('/logout', verifyToken, asyncHandler(async function _logout(req, res, next) {
     const userId = req.user._id;
     const tenant = req.tenant;
     await require('../controllers/auth/logout.js')(userId, tenant.dbName);
     return res.status(200).json(new apiResponse({}, 200, 'User logout succesfully'));
-}))
-
-router.get('/me', verifyToken, asyncHandler(async function _verifyTenant(req, res, next) {
-    return res.status(200).json(new apiResponse('', 200, 'Valid User'));
 }));
 
 module.exports = router;
