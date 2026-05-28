@@ -16,13 +16,13 @@ module.exports = async function (userData) {
 
     const user = await User.findOne({ email: normalizedEmail });
     if (!user) throw new createHttpError(STATUS_CODE.UNPROCESSABLE_ENTITY, ERROR_MESSAGE.INVALID_CREDENTIALS);
-    const otp = user.generateOTP();
-    const emailVerifyToken = jwt.sign({ email }, process.env.JWT_EMAIL_VERIFY_SECRET, { expiresIn: process.env.JWT_EMAIL_VERIFY_EXPIRY });
+    const { otp, expiryTime } = user.generateOTP();
     try {
         await forgotPasswordOtpEmail(tenant.tenantId.orgName, user.firstName, user.lastName, otp, user.email);
     } catch (error) {
         console.error(error);
     }
     await user.save({ validateBeforeSave: false });
-    return emailVerifyToken;
+
+    return expiryTime;
 }

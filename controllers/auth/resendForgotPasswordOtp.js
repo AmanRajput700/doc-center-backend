@@ -18,7 +18,7 @@ module.exports = async function (email) {
     if (user.otpResendBlockedUntil && user.otpResendBlockedUntil > Date.now()) {
         throw new createHttpError(STATUS_CODE.UNPROCESSABLE_ENTITY, ERROR_MESSAGE.OTP_RESEND_LIMIT);
     }
-    const otp = user.generateOTP();
+    const { otp, expiryTime } = user.generateOTP();
     user.otpResendBlockedUntil = Date.now() + TIME.OTP_RESEND_BLOCK_UNTIL;
     try {
         await resendForgotPasswordOtpEmail(tenant.tenantId.orgName, user.firstName, user.lastName, otp, user.email);
@@ -26,4 +26,5 @@ module.exports = async function (email) {
         console.error(error)
     }
     await user.save({ validateBeforeSave: false });
+    return expiryTime;
 }

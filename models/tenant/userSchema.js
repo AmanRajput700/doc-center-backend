@@ -90,10 +90,11 @@ userSchema.methods.comparePassword = async function (password) {
 userSchema.methods.generateOTP = function () {
     const otp = Math.floor(100000 + Math.random() * 900000);
     this.otp = crypto.createHash('sha256').update(String(otp)).digest('hex');
-    this.otpExpiry = Date.now() + 1000 * 60 * 5;
+    this.otpExpiry = Date.now() + process.env.OTP_EXPIRY_TIME;
     this.otpAttempts = 0;
     this.otpBlockedUntil = undefined;
-    return otp;
+    let expiryTime = Date.now() + Number(process.env.OTP_EXPIRY_TIME);
+    return { otp, expiryTime };
 }
 
 userSchema.methods.generateResetPasswordToken = function () {
