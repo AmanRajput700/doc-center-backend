@@ -54,8 +54,8 @@ router.get('/', verifyToken, authorize('view_document'), asyncHandler(async func
     const q = req.query.q;
     const name = req.query.name;
     const size = req.query.size;
-    const date = req.query.date;
-    const { docs, folder } = await require('../controllers/document/getDocumentByTenant')(dbName, parentId, q, name, date, size);
+    const createdAt = req.query.createdAt;
+    const { docs, folder } = await require('../controllers/document/getDocumentByTenant')(dbName, parentId, q, name, createdAt, size);
     return res.status(200).json(new apiResponse({ docs, folder }, 200, 'Documents fetched succesfully'));
 }));
 
