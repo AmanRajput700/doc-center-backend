@@ -43,8 +43,7 @@ const userSchema = new mongoose.Schema(
             type: Date
         },
         lastActivateAt: {
-            type: Date,
-            default: Date.now()
+            type: Date
         },
         otp: {
             type: String
