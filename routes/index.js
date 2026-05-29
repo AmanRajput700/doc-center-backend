@@ -10,5 +10,6 @@ router.use('/roles', require('./roles.routes'));
 router.use('/docs', require('./doc.routes'));
 router.use('/permissions', require('./permissions.routes'));
 router.use('/orgs', require('./orgs.routes'));
+router.use('/api-key', require('./apikey.routes'));
 
 module.exports = router;
