@@ -11,6 +11,9 @@ module.exports = async function (apiData, tenant, userId) {
     const rawApiKey = generateApiKey();
     const User = getTenantModel(dbName, 'User', userSchema);
 
+    const api = await ApiKey.findOne({ name });
+    if (api) throw new createHttpError(STATUS_CODE.CONFLICT, 'API KEY exists with same name');
+
     const user = await User.findById(userId).populate("role", "name");
     if (!user || !user.role || user.role.name !== 'Admin') throw new createHttpError(STATUS_CODE.FORBIDDEN, 'User not allowed to generate API key');
 

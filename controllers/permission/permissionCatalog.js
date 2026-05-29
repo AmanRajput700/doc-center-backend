@@ -25,6 +25,11 @@ module.exports = async function (dbName) {
                 permissions: 1,
                 totalCount: 1
             }
+        },
+        {
+            $sort: {
+                module: 1
+            }
         }
     ])
     return permissionCatalog;

@@ -1,6 +1,7 @@
 const { GetObjectCommand, PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 const s3Client = require('../config/s3Client.config');
+const TIME = require('../utils/times');
 
 async function generateUploadUrl(key, contentType) {
 
@@ -14,14 +15,14 @@ async function generateUploadUrl(key, contentType) {
         s3Client,
         command,
         {
-            expiresIn: 60 * 5
+            expiresIn: TIME.AWS_PUT_OBJECT_URI_EXPIRY
         }
     );
 
     return url;
 }
 
-async function generateGetObjectUrl(key, time) {
+async function generateGetObjectUrl(key, time = TIME.AWS_GET_OBJECT_URI_EXPIRY) {
     const command = new GetObjectCommand({
         Bucket: process.env.AWS_BUCKET_NAME,
         Key: key,
@@ -48,7 +49,7 @@ async function generateDownloadObjectUrl(key, fileName = 'download') {
         s3Client,
         command,
         {
-            expiresIn: 60
+            expiresIn: TIME.AWS_DOWNLOAD_OBJECT_URI_EXPIRY
         }
     );
     return url;

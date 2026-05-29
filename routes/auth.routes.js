@@ -32,8 +32,8 @@ router.post('/resend-otp', validate(emailValidator), asyncHandler(async function
 
 router.post('/complete-onboarding', validate(completeOnboardingValidator), asyncHandler(async function _completeOnboarding(req, res, next) {
     const userData = req.body;
-    const user = await require('../controllers/auth/completeOnboardingController')(userData);
-    return res.status(201).json(new apiResponse({ user }, 201, 'user succesfully on boarded'));
+    await require('../controllers/auth/completeOnboardingController')(userData);
+    return res.status(201).json(new apiResponse({}, 201, 'user succesfully on boarded'));
 }));
 
 router.post('/login', validate(loginValidator), asyncHandler(async function _login(req, res, next) {
@@ -66,7 +66,7 @@ router.post('/refresh-access-token', asyncHandler(async function _refreshAccessT
 router.get('/validate-secure-token', asyncHandler(async function _verifySetPasswordToken(req, res, next) {
     const token = req.query.token;
     const status = await require('../controllers/auth/validateTenantSetPasswordToken.js')(token);
-    return res.status(200).json(new apiResponse({ status }, 200, 'Token validate'));
+    return res.status(200).json(new apiResponse({ status }, 200, `Token ${status}`));
 }));
 
 // router.post('/validate-login-token', validate(verifyTokenValidator), asyncHandler(async function _(req, res, next) {

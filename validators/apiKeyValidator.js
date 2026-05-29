@@ -11,8 +11,8 @@ const apiKeyIdValidator = [
     param('id')
         .notEmpty()
         .withMessage('ID is required')
-        .isUUID()
-        .withMessage('Invalid UUID'),
+        .isMongoId()
+        .withMessage('Invalid mongoID'),
 ];
 
 module.exports = {
