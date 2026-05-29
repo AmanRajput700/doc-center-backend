@@ -8,6 +8,7 @@ const apiKeySchema = new mongoose.Schema({
     },
     name: {
         type: String,
+        required: true
     },
     hashedKey: {
         type: String,

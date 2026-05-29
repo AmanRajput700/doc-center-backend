@@ -5,21 +5,16 @@ const generateApiKey = require('../../utils/generateApiKey');
 const createHttpError = require('http-errors');
 const { STATUS_CODE, ERROR_MESSAGE } = require('../../utils/constant');
 
-module.exports = async function (apiData, tenant, userId) {
-    const { name } = apiData;
-    const { _id, dbName } = tenant;
-    const rawApiKey = generateApiKey();
+module.exports = async function (apiKeyId, tenant, userId) {
+    const { _id: tenantId, dbName } = tenant;
     const User = getTenantModel(dbName, 'User', userSchema);
-
     const user = await User.findById(userId).populate("role", "name");
     if (!user || !user.role || user.role.name !== 'Admin') throw new createHttpError(STATUS_CODE.FORBIDDEN, 'User not allowed to generate API key');
 
-    await ApiKey.create({
-        tenantId: _id,
-        name,
-        hashedKey: rawApiKey,
-        createdBy: userId
-    });
+    const apiKey = await ApiKey.findById(apiKeyId);
+    if (!apiKey) throw new createHttpError(STATUS_CODE.NOT_FOUND, ERROR_MESSAGE.API_NOT_FOUND);
+    if (apiKey.tenantId.toString() !== tenantId.toString()) throw new createHttpError(STATUS_CODE.FORBIDDEN, ERROR_MESSAGE.INVALID_USER);
+    const deletedApiKey = await ApiKey.findByIdAndDelete(apiKeyId);
 
-    return rawApiKey;
+    return deletedApiKey;
 }
