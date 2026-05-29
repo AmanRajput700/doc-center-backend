@@ -33,7 +33,10 @@ const ERROR_MESSAGE = {
 
 
   SLUG_NOT_FOUND: 'Slug Not Found',
-  EMAIL_ALREAY_EXISTS: 'Email Already Exists'
+  EMAIL_ALREAY_EXISTS: 'Email Already Exists',
+
+
+  API_NOT_FOUND: 'API Key not found'
 };
 
 const STATUS_CODE = Object.freeze({

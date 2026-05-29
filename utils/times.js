@@ -4,7 +4,7 @@ const TIME = Object.freeze({
     MAX_OTP_ATTEMPTS: 5,
     OTP_BLOCKED_UNTIL: 15 * 60 * 1000,
     INVITE_EMAIL_EXPIRY: 7 * 24 * 60 * 60 * 1000,
-    ONBOARDING_SET_PASSWORD_EMAIL: 1000 * 60 * 3
+    ONBOARDING_SET_PASSWORD_EMAIL: 1000 * 60 * 15
 });
 
 module.exports = TIME;
