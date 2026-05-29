@@ -3,6 +3,7 @@ const getTenantModel = require('../../utils/getTenantModel');
 const createHttpError = require('http-errors');
 const { STATUS_CODE, ERROR_MESSAGE } = require('../../utils/constant');
 const { generateGetObjectUrl } = require('../../services/s3.service');
+const TIME = require('../../utils/times');
 
 module.exports = async function (docId, tenant) {
     const { dbName, _id: tenantId } = tenant;
@@ -16,6 +17,6 @@ module.exports = async function (docId, tenant) {
     });
     if (!document) throw new createHttpError(STATUS_CODE.NOT_FOUND, ERROR_MESSAGE.DOC_NOT_FOUND);
 
-    const url = await generateGetObjectUrl(document.s3Key, process.env.AWS_VIEW_PRESIGNED_EXPIRY);
+    const url = await generateGetObjectUrl(document.s3Key, TIME.AWS_GET_OBJECT_URI_EXPIRY);
     return { url };
 };

@@ -15,10 +15,10 @@ module.exports = async function (userData) {
     const hashedSetPasswordToken = crypto.createHash('sha256').update(token).digest('hex');
 
     const tenant = await Tenant.findOne({ setPasswordToken: hashedSetPasswordToken, setPasswordExpiry: { $gt: Date.now() } });
-    if (!tenant) throw new createHttpError(STATUS_CODE.UNAUTHORIZED, ERROR_MESSAGE.INVALID_CREDENTIALS);
+    if (!tenant) throw new createHttpError(STATUS_CODE.BAD_REQUEST, "Password already set ");
 
     const tenantDB = mongoose.connection.useDb(tenant.dbName);
-    const User = getTenantModel(tenant.dbName,'User',userSchema);
+    const User = getTenantModel(tenant.dbName, 'User', userSchema);
     await permissionSeeder(tenantDB);
     const role = await roleSeeder(tenantDB);
     await User.create({
