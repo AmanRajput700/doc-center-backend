@@ -41,11 +41,18 @@ router.post('/folder', verifyToken, authorize('upload_document'), validate(folde
     return res.status(201).json(new apiResponse({}, 201, 'Folder Created'));
 }));
 
+
 router.get('/:id/view-url', verifyToken, authorize('view_document'), validate(paramIdValidator), asyncHandler(async function _getPresignedViewUrl(req, res, next) {
     const tenant = req.tenant;
     const docId = req.params.id;
     const { url } = await require('../controllers/document/getPreSignedViewUrl')(docId, tenant);
     return res.status(200).json(new apiResponse({ url }, 200, 'Pre-Signed View url is generated succesfully'));
+}));
+
+router.get('/recent', verifyToken, authorize('view_document'), asyncHandler(async function _getRecentUploadedDocs(req, res, next) {
+    const { docs, docCount, docsAddedThisWeek } = await require('../controllers/document/getRecentlyUploadedDocs')(req.tenant.dbName);
+    const stats = { docCount, docsAddedThisWeek };
+    return res.status(200).json(new apiResponse({ docs, stats }, 200, 'Documents fetched succesfully'));
 }));
 
 router.get('/', verifyToken, authorize('view_document'), asyncHandler(async function _getDocs(req, res, next) {
@@ -107,5 +114,6 @@ router.post('/:id/share', verifyToken, authorize('share_document'), validate(gen
     const { url } = await require('../controllers/document/generateDocumentShareUrl')(expiryTime, docId, req.tenant.dbName, req.tenant._id);
     return res.status(200).json(new apiResponse({ url }, 200, 'Document Share Uri generated'));
 }));
+
 
 module.exports = router;
