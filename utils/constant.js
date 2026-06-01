@@ -6,6 +6,7 @@ const ERROR_MESSAGE = {
   INVALID_SLUG: 'Tenant already exists with same slug.',
   INVALID_ORGNAME: 'Tenant already exists with same orgName.',
   INVALID_OTP: 'The provided otp is invalid.',
+  INVALID_API_KEY: 'Invalid API Key',
 
   USER_NOT_FOUND: 'User not found.',
   USER_ALREADY_EXISTS: 'A user with the provided email already exists.',
@@ -36,7 +37,9 @@ const ERROR_MESSAGE = {
   EMAIL_ALREAY_EXISTS: 'Email Already Exists',
 
 
-  API_NOT_FOUND: 'API Key not found'
+  API_NOT_FOUND: 'API Key not found',
+  API_KEY_MISSING: 'API key missing',
+
 };
 
 const STATUS_CODE = Object.freeze({

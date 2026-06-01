@@ -11,7 +11,7 @@ module.exports = async function (apiData, tenant, userId) {
     const rawApiKey = generateApiKey();
     const User = getTenantModel(dbName, 'User', userSchema);
 
-    const api = await ApiKey.findOne({ name });
+    const api = await ApiKey.findOne({ tenantId: _id, name });
     if (api) throw new createHttpError(STATUS_CODE.CONFLICT, 'API KEY exists with same name');
 
     const user = await User.findById(userId).populate("role", "name");
