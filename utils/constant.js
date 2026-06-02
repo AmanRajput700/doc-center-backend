@@ -36,7 +36,9 @@ const ERROR_MESSAGE = {
   EMAIL_ALREAY_EXISTS: 'Email Already Exists',
 
 
-  API_NOT_FOUND: 'API Key not found'
+  API_NOT_FOUND: 'API Key not found',
+
+  STORAGE_NOT_FOUND: 'Storage not found'
 };
 
 const STATUS_CODE = Object.freeze({
