@@ -43,6 +43,9 @@ const documentSchema = new mongoose.Schema({
         type: Date,
         default: null,
     },
+    deletedByParent: {
+        type: Boolean
+    },
     s3Key: {
         type: String,
         required: true

@@ -28,7 +28,8 @@ module.exports = async function (folderId, tenant) {
             {
                 $set: {
                     isDeleted: true,
-                    deletedAt: new Date()
+                    deletedAt: new Date(),
+                    deletedByParent: true
                 }
             }
         );
@@ -39,6 +40,7 @@ module.exports = async function (folderId, tenant) {
             deletedFolders++;
             folder.isDeleted = true;
             folder.deletedAt = new Date();
+            folder.deletedByParent = true;
             await folder.save();
             await softDeleteChild(folder._id);
         }
@@ -46,6 +48,7 @@ module.exports = async function (folderId, tenant) {
 
     folder.isDeleted = true;
     folder.deletedAt = new Date();
+    folder.deletedByParent = false;
     await folder.save();
     deletedFolders++;
     await softDeleteChild(folder._id);

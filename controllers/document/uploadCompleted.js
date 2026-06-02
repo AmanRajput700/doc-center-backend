@@ -38,6 +38,7 @@ module.exports = async function (documentId, tenant) {
             }
         }
     );
+    console.log("done");
 
     return document;
 }
