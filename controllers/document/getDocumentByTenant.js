@@ -76,14 +76,15 @@ module.exports = async function (dbName, parentId, q, name, createdAt, size) {
 
     const docs = await Document.find(docQuery)
         .populate('uploadedBy', 'firstName lastName email')
-        .sort(sortFilterDocs);
+        .sort(sortFilterDocs)
+        .collation({ locale: 'en', strength: 2 });
 
     const folder = await Folder.find(folderQuery)
         .populate('createdBy', 'firstName lastName email')
-        .sort(sortFilterFolder);
+        .sort(sortFilterFolder)
+        .collation({ locale: 'en', strength: 2 });
 
     const response = { docs, folder };
-
 
     return response;
 };

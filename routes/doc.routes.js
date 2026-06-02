@@ -115,5 +115,22 @@ router.post('/:id/share', verifyToken, authorize('share_document'), validate(gen
     return res.status(200).json(new apiResponse({ url }, 200, 'Document Share Uri generated'));
 }));
 
+router.get('/restore-docs', verifyToken, authorize('view_document'), asyncHandler(async function _getListOfRestoreDocs(req, res, next) {
+    const { folders, docs } = await require('../controllers/document/getListOfRestoreDocs')(req.tenant.dbName);
+    return res.status(200).json(new apiResponse({ docs, folders }, 200, 'Restore docs list fetched succesfully'));
+}));
+
+router.put('/:id/restore-doc', verifyToken, validate(paramIdValidator), asyncHandler(async function _restoreDocument(req, res, next) {
+    const docId = req.params.id;
+    const restoredDoc = await require('../controllers/document/restoreDocument')(docId, req.tenant.dbName);
+    return res.status(200).json(new apiResponse({ restoredDoc }, 200, 'Document Restored Successfully'));
+}));
+
+router.put('/:id/restore-folder', verifyToken, validate(paramIdValidator), asyncHandler(async function _restoreFolder(req, res, next) {
+    const folderId = req.params.id;
+    const restoredFolder = await require('../controllers/document/restoreFolder')(folderId, req.tenant.dbName);
+    return res.status(200).json(new apiResponse({ restoredFolder }, 200, 'Folder restored succesfully'));
+}));
+
 
 module.exports = router;
