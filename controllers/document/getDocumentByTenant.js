@@ -25,6 +25,10 @@ module.exports = async function (dbName, parentId, q, name, createdAt, size) {
             originalFileName: {
                 $regex: q,
                 $options: 'i'
+            },
+            email: {
+                $regex: q,
+                $options: 'i'
             }
         }
         : {};

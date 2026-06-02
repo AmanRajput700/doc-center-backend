@@ -9,7 +9,7 @@ module.exports = async function (docId, tenant) {
     const Document = getTenantModel(dbName, 'Document', documentSchema);
     const Storage = getTenantModel(dbName, 'Storage', storageSchema);
 
-    const document = await Document.findOneAndUpdate({ _id: docId, isDeleted: false }, { isDeleted: true, deletedAt: new Date() }, { returnDocument: 'after' });
+    const document = await Document.findOneAndUpdate({ _id: docId, isDeleted: false }, { isDeleted: true, deletedByParent: false, deletedAt: new Date() }, { returnDocument: 'after' });
     if (!document) throw new createHttpError(STATUS_CODE.NOT_FOUND, ERROR_MESSAGE.DOC_NOT_FOUND);
 
     await Storage.findOneAndUpdate(

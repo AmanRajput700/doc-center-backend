@@ -9,8 +9,8 @@ module.exports = async function (dbName) {
     const Folder = getTenantModel(dbName, 'Folder', folderSchema);
 
     const lastSevenDays = new Date(Date.now() - 1000 * 60 * 60 * 24 * 7);
-    const docs = await Document.find({ isDeleted: true, deletedAt: { $gte: lastSevenDays } });
-    const folders = await Folder.find({ isDeleted: true, deletedAt: { $gte: lastSevenDays } });
+    const docs = await Document.find({ isDeleted: true, deletedByParent: false, deletedAt: { $gte: lastSevenDays } });
+    const folders = await Folder.find({ isDeleted: true, deletedByParent: false, deletedAt: { $gte: lastSevenDays } });
 
     return { docs, folders };
-}
+};

@@ -116,13 +116,13 @@ router.get('/restore-docs', verifyToken, authorize('view_document'), asyncHandle
 
 router.put('/:id/restore-doc', verifyToken, validate(paramIdValidator), asyncHandler(async function _restoreDocument(req, res, next) {
     const docId = req.params.id;
-    const restoredDoc = await require('../controllers/document/restoreDocument')(docId, req.tenant.dbName);
+    const restoredDoc = await require('../controllers/document/restoreDocument')(docId, req.tenant);
     return res.status(200).json(new apiResponse({ restoredDoc }, 200, 'Document Restored Successfully'));
 }));
 
 router.put('/:id/restore-folder', verifyToken, validate(paramIdValidator), asyncHandler(async function _restoreFolder(req, res, next) {
     const folderId = req.params.id;
-    const restoredFolder = await require('../controllers/document/restoreFolder')(folderId, req.tenant.dbName);
+    const restoredFolder = await require('../controllers/document/restoreFolder')(folderId, req.tenant);
     return res.status(200).json(new apiResponse({ restoredFolder }, 200, 'Folder restored succesfully'));
 }));
 
