@@ -23,6 +23,12 @@ const folderSchema = new mongoose.Schema({
         default: false,
         index: true
     },
+    deletedAt: {
+        type: Date
+    },
+    deletedByParent: {
+        type: Boolean
+    },
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',

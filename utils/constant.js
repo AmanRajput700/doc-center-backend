@@ -40,6 +40,8 @@ const ERROR_MESSAGE = {
   API_NOT_FOUND: 'API Key not found',
   API_KEY_MISSING: 'API key missing',
 
+
+  STORAGE_NOT_FOUND: 'Storage not found'
 };
 
 const STATUS_CODE = Object.freeze({

@@ -41,6 +41,7 @@ router.post('/folder', verifyToken, authorize('upload_document'), validate(folde
     return res.status(201).json(new apiResponse({}, 201, 'Folder Created'));
 }));
 
+
 router.get('/:id/view-url', verifyToken, authorize('view_document'), validate(paramIdValidator), asyncHandler(async function _getPresignedViewUrl(req, res, next) {
     const tenant = req.tenant;
     const docId = req.params.id;
@@ -71,13 +72,13 @@ router.get('/', verifyToken, authorize('view_document'), asyncHandler(async func
 
 router.delete('/:id/document', verifyToken, authorize('delete_document'), validate(paramIdValidator), asyncHandler(async function _deleteDocument(req, res, next) {
     const docId = req.params.id;
-    const deletedDoc = await require('../controllers/document/deleteDocument')(docId, req.tenant.dbName);
+    const deletedDoc = await require('../controllers/document/deleteDocument')(docId, req.tenant);
     return res.status(200).json(new apiResponse({ deletedDoc }, 200, 'Document Deleted Succesfully'));
 }));
 
 router.delete('/:id/folder', verifyToken, authorize('delete_document'), validate(paramIdValidator), asyncHandler(async function _deleteFolder(req, res, next) {
     const folderId = req.params.id;
-    const deletedFolder = await require('../controllers/document/deleteFolder')(folderId, req.tenant.dbName);
+    const deletedFolder = await require('../controllers/document/deleteFolder')(folderId, req.tenant);
     return res.status(200).json(new apiResponse({ deletedFolder }, 200, 'Folder Deleted Succesfully'));
 }));
 
@@ -107,5 +108,23 @@ router.post('/:id/share', verifyToken, authorize('share_document'), validate(gen
     const { url } = await require('../controllers/document/generateDocumentShareUrl')(expiryTime, docId, req.tenant.dbName, req.tenant._id);
     return res.status(200).json(new apiResponse({ url }, 200, 'Document Share Uri generated'));
 }));
+
+router.get('/restore-docs', verifyToken, authorize('view_document'), asyncHandler(async function _getListOfRestoreDocs(req, res, next) {
+    const { folders, docs } = await require('../controllers/document/getListOfRestoreDocs')(req.tenant.dbName);
+    return res.status(200).json(new apiResponse({ docs, folders }, 200, 'Restore docs list fetched succesfully'));
+}));
+
+router.put('/:id/restore-doc', verifyToken, validate(paramIdValidator), asyncHandler(async function _restoreDocument(req, res, next) {
+    const docId = req.params.id;
+    const restoredDoc = await require('../controllers/document/restoreDocument')(docId, req.tenant);
+    return res.status(200).json(new apiResponse({ restoredDoc }, 200, 'Document Restored Successfully'));
+}));
+
+router.put('/:id/restore-folder', verifyToken, validate(paramIdValidator), asyncHandler(async function _restoreFolder(req, res, next) {
+    const folderId = req.params.id;
+    const restoredFolder = await require('../controllers/document/restoreFolder')(folderId, req.tenant);
+    return res.status(200).json(new apiResponse({ restoredFolder }, 200, 'Folder restored succesfully'));
+}));
+
 
 module.exports = router;

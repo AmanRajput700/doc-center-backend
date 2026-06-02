@@ -3,6 +3,8 @@ const createHttpError = require('http-errors');
 const folderSchema = require('../../models/tenant/folderSchema');
 const { STATUS_CODE, ERROR_MESSAGE } = require('../../utils/constant');
 const redis = require('../../services/cache');
+const storageSchema = require('../../models/tenant/storageSchema');
+
 
 module.exports = async function (userId, folderData, tenant) {
 
@@ -10,6 +12,9 @@ module.exports = async function (userId, folderData, tenant) {
     const { dbName, _id: tenantId } = tenant;
 
     const Folder = getTenantModel(dbName, 'Folder', folderSchema);
+    const Storage = getTenantModel(dbName, 'Storage', storageSchema);
+
+
     if (parentFolderId) {
         const parentFolder = await Folder.findOne({ _id: parentFolderId, isDeleted: false });
 
@@ -53,6 +58,19 @@ module.exports = async function (userId, folderData, tenant) {
         }
     }
 
-    await redis.del(`Document:${dbName}:${parentFolderId || 'root'}`);
+    await Storage.findOneAndUpdate(
+        {
+            tenantId
+        },
+        {
+            $inc: {
+                totalFolders: 1,
+            },
+            $set: {
+                lastStorageUpdatedAt: new Date()
+            }
+        }
+    );
+
     return folder;
 }

@@ -8,6 +8,7 @@ const TenantUserMap = require('../../models/root/TenantUserMap');
 const permissionSeeder = require('../../seeders/tenant/permissionSeeder');
 const roleSeeder = require('../../seeders/tenant/roleSeeder');
 const getTenantModel = require('../../utils/getTenantModel');
+const storageSchema = require('../../models/tenant/storageSchema');
 
 module.exports = async function (userData) {
     const { password, confirmPassword, token } = userData;
@@ -19,8 +20,10 @@ module.exports = async function (userData) {
 
     const tenantDB = mongoose.connection.useDb(tenant.dbName);
     const User = getTenantModel(tenant.dbName, 'User', userSchema);
+    const Storage = getTenantModel(tenant.dbName, 'Storage', storageSchema);
     await permissionSeeder(tenantDB);
     const role = await roleSeeder(tenantDB);
+    await Storage.create({ tenantId: tenant._id });
     await User.create({
         firstName: tenant.applicant.firstName,
         lastName: tenant.applicant.lastName,
