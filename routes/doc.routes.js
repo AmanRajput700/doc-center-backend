@@ -49,12 +49,6 @@ router.get('/:id/view-url', verifyToken, authorize('view_document'), validate(pa
     return res.status(200).json(new apiResponse({ url }, 200, 'Pre-Signed View url is generated succesfully'));
 }));
 
-router.get('/recent', verifyToken, authorize('view_document'), asyncHandler(async function _getRecentUploadedDocs(req, res, next) {
-    const { docs, docCount, docsAddedThisWeek } = await require('../controllers/document/getRecentlyUploadedDocs')(req.tenant.dbName);
-    const stats = { docCount, docsAddedThisWeek };
-    return res.status(200).json(new apiResponse({ docs, stats }, 200, 'Documents fetched succesfully'));
-}));
-
 router.get('/', verifyToken, authorize('view_document'), asyncHandler(async function _getDocs(req, res, next) {
     const dbName = req.tenant.dbName;
     const parentId = req.query.parentId;
@@ -78,13 +72,13 @@ router.get('/', verifyToken, authorize('view_document'), asyncHandler(async func
 
 router.delete('/:id/document', verifyToken, authorize('delete_document'), validate(paramIdValidator), asyncHandler(async function _deleteDocument(req, res, next) {
     const docId = req.params.id;
-    const deletedDoc = await require('../controllers/document/deleteDocument')(docId, req.tenant.dbName);
+    const deletedDoc = await require('../controllers/document/deleteDocument')(docId, req.tenant);
     return res.status(200).json(new apiResponse({ deletedDoc }, 200, 'Document Deleted Succesfully'));
 }));
 
 router.delete('/:id/folder', verifyToken, authorize('delete_document'), validate(paramIdValidator), asyncHandler(async function _deleteFolder(req, res, next) {
     const folderId = req.params.id;
-    const deletedFolder = await require('../controllers/document/deleteFolder')(folderId, req.tenant.dbName);
+    const deletedFolder = await require('../controllers/document/deleteFolder')(folderId, req.tenant);
     return res.status(200).json(new apiResponse({ deletedFolder }, 200, 'Folder Deleted Succesfully'));
 }));
 

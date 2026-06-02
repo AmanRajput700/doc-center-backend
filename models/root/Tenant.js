@@ -68,7 +68,16 @@ const tenantSchema = new mongoose.Schema({
     },
     setPasswordExpiry: {
         type: Date
-    }
+    },
+    currentPlan: {
+        type: String,
+        enum: [
+            'Free',
+            'Pro',
+            'Enterprise'
+        ],
+        default: 'Free'
+    },
 }, { timestamps: true });
 
 tenantSchema.pre('validate', function () {
