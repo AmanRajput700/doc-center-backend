@@ -10,6 +10,7 @@ const folderSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
+        unique: true,
         trim: true
     },
     parentFolderId: {
@@ -41,5 +42,15 @@ folderSchema.index({
     parentFolderId: 1,
     name: 1
 }, { unique: true });
+
+folderSchema.index(
+    {
+        parentFolderId: 1,
+        name: 1
+    },
+    {
+        unique: true
+    }
+);
 
 module.exports = folderSchema;
