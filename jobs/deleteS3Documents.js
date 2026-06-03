@@ -7,7 +7,7 @@ const { deleteObject } = require('../services/s3.service');
 const createHttpError = require('http-errors');
 const { STATUS_CODE, ERROR_MESSAGE } = require('../utils/constant');
 
-cron.schedule('0 0 2 * *', async function () {
+cron.schedule('*/30 * * * * *', async function () {
     try {
         console.log(`CRON run at ${new Date()}`)
         const tenants = await Tenant.find({}, { _id: 1, dbName: 1, slug: 1 }).lean();
