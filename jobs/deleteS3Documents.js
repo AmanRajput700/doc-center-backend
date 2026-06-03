@@ -6,6 +6,7 @@ const Tenant = require('../models/root/Tenant');
 const { deleteObject } = require('../services/s3.service');
 const createHttpError = require('http-errors');
 const { STATUS_CODE, ERROR_MESSAGE } = require('../utils/constant');
+const folderSchema = require('../models/tenant/folderSchema');
 
 cron.schedule('*/30 * * * * *', async function () {
     try {
@@ -21,10 +22,15 @@ cron.schedule('*/30 * * * * *', async function () {
                 console.log(`Processing tenant: ${tenant.slug}`);
                 const Document = getTenantModel(tenant.dbName, 'Document', documentSchema);
                 const Storage = getTenantModel(tenant.dbName, 'Storage', storageSchema);
+                const Folder = getTenantModel(tenant.dbName, 'Folder', folderSchema);
                 const documents = await Document.find({ isDeleted: true, deletedAt: { $lte: sevenDaysAgo } }).lean();
+                const folders = await Folder.find({ isDeleted: true, deletedAt: { $lte: sevenDaysAgo } }).lean();
                 console.log(`Found Docs ${documents.length}`);
-                if (!documents.length) continue;
+                if (!documents.length && !folders.length) {
+                    continue;
+                }
 
+                
                 for (let document of documents) {
                     try {
                         await deleteObject(document.s3Key);
@@ -46,9 +52,17 @@ cron.schedule('*/30 * * * * *', async function () {
                         console.log(`Tenant Storage updated ${tenant.slug}`);
                         await Document.findByIdAndDelete(document._id);
                         console.log(` Removed document from DB: ${document._id}`);
-
+                        
                     } catch (error) {
                         console.error(`Failed deleting object: ${document.s3Key}`, error.message);
+                    }
+                }
+                
+                for (let folder of folders) {
+                    try {
+                        await Folder.findByIdAndDelete(folder._id);
+                    } catch (error) {
+                        console.error(`Failed deleting folder: ${document.s3Key}`, error.message);
                     }
                 }
                 console.log(`Cleanup completed for tenant: ${tenant.slug}`);
