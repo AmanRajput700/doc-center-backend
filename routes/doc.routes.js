@@ -50,14 +50,10 @@ router.get('/:id/view-url', verifyToken, authorize('view_document'), validate(pa
 }));
 
 router.get('/', verifyToken, authorize('view_document'), asyncHandler(async function _getDocs(req, res, next) {
-    const dbName = req.tenant.dbName;
-    const parentId = req.query.parentId;
-    const q = req.query.q;
-    const name = req.query.name;
-    const size = req.query.size;
-    const createdAt = req.query.createdAt;
-    const { docs, folder } = await require('../controllers/document/getDocumentByTenant')(dbName, parentId, q, name, createdAt, size);
-    return res.status(200).json(new apiResponse({ docs, folder }, 200, 'Documents fetched succesfully'));
+    const tenant = req.tenant;
+    const queryData = req.query;
+    const { documents, pagination } = await require('../controllers/document/getDocumentByTenant')(tenant, queryData);
+    return res.status(200).json(new apiResponse({ documents, pagination }, 200, 'Documents fetched succesfully'));
 }));
 
 // router.post('/upload', verifyToken, authorize('upload_document'), upload.single('document'), asyncHandler(async function _upload(req, res, next) {

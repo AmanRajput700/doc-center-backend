@@ -1,16 +1,22 @@
-const createHttpError = require('http-errors');
 const getTenantModel = require('../../utils/getTenantModel');
 const documentSchema = require('../../models/tenant/documentSchema');
 const folderSchema = require('../../models/tenant/folderSchema');
-const userSchema = require('../../models/tenant/userSchema');
 
+module.exports = async function (tenant, queryData) {
 
-module.exports = async function (dbName, parentId, q, name, createdAt, size) {
+    const { q, name, createdAt, size, parentId, page, limit } = queryData;
+    const { dbName } = tenant;
 
+    // PAGINATION
+    const pageNumber = Number(page) || 1;
+    const limitNumber = Number(limit) || 10;
+    const skip = (pageNumber - 1) * limitNumber;
 
+    // MODELS
     const Document = getTenantModel(dbName, 'Document', documentSchema);
     const Folder = getTenantModel(dbName, 'Folder', folderSchema);
 
+    // SEARCH FILTERS
     const searchFilterForFolder = q
         ? {
             name: {
@@ -22,49 +28,41 @@ module.exports = async function (dbName, parentId, q, name, createdAt, size) {
 
     const searchFilterForDocument = q
         ? {
-            originalFileName: {
-                $regex: q,
-                $options: 'i'
-            },
-            email: {
-                $regex: q,
-                $options: 'i'
-            }
+            $or: [
+                {
+                    originalFileName: {
+                        $regex: q,
+                        $options: 'i'
+                    }
+                },
+                {
+                    email: {
+                        $regex: q,
+                        $options: 'i'
+                    }
+                }
+            ]
         }
         : {};
 
-    let sortFilterFolder = {};
-    let sortFilterDocs = {};
+    // SORTING
+    let sortField = 'createdAt';
+    let sortOrder = -1;
 
     if (name) {
-        if (name === 'asc') {
-            sortFilterFolder = { name: 1 };
-            sortFilterDocs = { originalFileName: 1 };
-        } else if (name === 'desc') {
-            sortFilterFolder = { name: -1 };
-            sortFilterDocs = { originalFileName: -1 };
-        }
+        sortField = 'name';
+        sortOrder = name === 'asc' ? 1 : -1;
     }
     else if (createdAt) {
-        if (createdAt === 'asc') {
-            sortFilterFolder = { createdAt: 1 };
-            sortFilterDocs = { createdAt: 1 };
-        } else if (createdAt === 'desc') {
-            sortFilterFolder = { createdAt: -1 };
-            sortFilterDocs = { createdAt: -1 };
-        }
+        sortField = 'createdAt';
+        sortOrder = createdAt === 'asc' ? 1 : -1;
     }
     else if (size) {
-        if (size === 'asc') {
-            sortFilterDocs = { size: 1 };
-        } else if (size === 'desc') {
-            sortFilterDocs = { size: -1 };
-        }
+        sortField = 'size';
+        sortOrder = size === 'asc' ? 1 : -1;
     }
 
-
-
-
+    // QUERIES
     const docQuery = {
         isDeleted: false,
         uploadStatus: 'uploaded',
@@ -78,17 +76,91 @@ module.exports = async function (dbName, parentId, q, name, createdAt, size) {
         ...searchFilterForFolder
     };
 
-    const docs = await Document.find(docQuery)
-        .populate('uploadedBy', 'firstName lastName email')
-        .sort(sortFilterDocs)
-        .collation({ locale: 'en', strength: 2 });
+    // FETCH DATA
+    const [docs, folders] = await Promise.all([
+        Document.find(docQuery)
+            .populate(
+                'uploadedBy',
+                'firstName lastName email'
+            )
+            .collation({
+                locale: 'en',
+                strength: 2
+            }),
 
-    const folder = await Folder.find(folderQuery)
-        .populate('createdBy', 'firstName lastName email')
-        .sort(sortFilterFolder)
-        .collation({ locale: 'en', strength: 2 });
+        Folder.find(folderQuery)
+            .populate(
+                'createdBy',
+                'firstName lastName email'
+            )
+            .collation({
+                locale: 'en',
+                strength: 2
+            })
+    ]);
 
-    const response = { docs, folder };
+    // NORMALIZE DATA
+    const formattedFolders = folders.map(folder => ({
+        ...folder.toObject(),
+        type: 'folder',
+        sortName: folder.name
+    }));
 
-    return response;
+    const formattedDocs = docs.map(doc => ({
+        ...doc.toObject(),
+        type: 'document',
+        sortName: doc.originalFileName
+    }));
+
+    // MERGE
+    let mergedData = [...formattedFolders, ...formattedDocs];
+
+    // SORT MERGED DATA
+    mergedData.sort((a, b) => {
+        // NAME SORT
+        if (sortField === 'name') {
+            return sortOrder === 1
+                ? a.sortName.localeCompare(b.sortName)
+                : b.sortName.localeCompare(a.sortName);
+        }
+
+        // CREATED AT SORT
+        if (sortField === 'createdAt') {
+            return sortOrder === 1
+                ? new Date(a.createdAt) - new Date(b.createdAt)
+                : new Date(b.createdAt) - new Date(a.createdAt);
+        }
+
+        // SIZE SORT
+        if (sortField === 'size') {
+            const aSize = a.type === 'folder' ? 0 : a.size;
+            const bSize = b.type === 'folder' ? 0 : b.size;
+
+            return sortOrder === 1
+                ? aSize - bSize
+                : bSize - aSize;
+        }
+        return 0;
+    });
+
+    // PAGINATE
+    const paginatedData = mergedData.slice(skip, skip + limitNumber);
+
+    // PAGINATION INFO
+    const totalDocuments = mergedData.length;
+    const totalPages = Math.ceil(totalDocuments / limitNumber);
+
+    //RES
+    return {
+        documents: paginatedData,
+
+        pagination: {
+            totalDocuments,
+            totalPages,
+            currentPage: pageNumber,
+            pageSize: limitNumber,
+            hasNextPage: pageNumber < totalPages,
+            hasPreviousPage: pageNumber > 1
+        }
+    };
 };
