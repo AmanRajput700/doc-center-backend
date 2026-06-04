@@ -8,14 +8,12 @@ const createHttpError = require('http-errors');
 const { STATUS_CODE, ERROR_MESSAGE } = require('../utils/constant');
 const folderSchema = require('../models/tenant/folderSchema');
 
-cron.schedule('*/30 * * * * *', async function () {
+cron.schedule('0 0 16 * * *', async function () {
     try {
         console.log(`CRON run at ${new Date()}`)
         const tenants = await Tenant.find({}, { _id: 1, dbName: 1, slug: 1 }).lean();
 
-        const sevenDaysAgo = new Date(Date.now() - (30 * 1000));
-        //7 * 24 * 60 * 60 * 1000
-
+        const sevenDaysAgo = new Date(Date.now() - (7 * 24 * 60 * 60 * 1000));
 
         for (let tenant of tenants) {
             try {
@@ -30,7 +28,7 @@ cron.schedule('*/30 * * * * *', async function () {
                     continue;
                 }
 
-                
+
                 for (let document of documents) {
                     try {
                         await deleteObject(document.s3Key);
@@ -52,12 +50,12 @@ cron.schedule('*/30 * * * * *', async function () {
                         console.log(`Tenant Storage updated ${tenant.slug}`);
                         await Document.findByIdAndDelete(document._id);
                         console.log(` Removed document from DB: ${document._id}`);
-                        
+
                     } catch (error) {
                         console.error(`Failed deleting object: ${document.s3Key}`, error.message);
                     }
                 }
-                
+
                 for (let folder of folders) {
                     try {
                         await Folder.findByIdAndDelete(folder._id);

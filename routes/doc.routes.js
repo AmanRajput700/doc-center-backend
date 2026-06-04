@@ -78,6 +78,20 @@ router.delete('/:id/folder', verifyToken, authorize('delete_document'), validate
     return res.status(200).json(new apiResponse({ deletedFolder }, 200, 'Folder Deleted Succesfully'));
 }));
 
+router.delete('/recycle-bin/documents/:id', verifyToken, authorize('delete_document'), asyncHandler(async function _deleteDocumentFromRecycleBin(req, res, next) {
+    const tenant = req.tenant;
+    const docId = req.params.id;
+    const deletedDoc = await require('../controllers/document/deleteDocumentFromBin')(tenant, docId);
+    return res.status(200).json(new apiResponse({ deletedDoc }, 200, "Document deleted succesfully"));
+}));
+
+router.delete('/recycle-bin/folders/:id', verifyToken, authorize('delete_document'), asyncHandler(async function _deleteFolderFromRecycleBin(req, res, next) {
+    const tenant = req.tenant;
+    const folderId = req.params.id;
+    await require('../controllers/document/deleteFolderFromBin')(tenant, folderId);
+    return res.status(200).json(new apiResponse({}, 200, "Folder Deleted permanent succefullly"));
+}));
+
 router.put('/:id/folder', verifyToken, authorize('update_document'), validate(nameUpdateValidator), asyncHandler(async function _updateFolder(req, res, next) {
     const folderId = req.params.id;
     const data = req.body;
