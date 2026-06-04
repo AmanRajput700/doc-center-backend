@@ -10,4 +10,12 @@ router.get('/', verifyToken, asyncHandler(async function _getOrgDetails(req, res
     return res.status(200).json(new apiResponse(userOrg, 200, 'Details fetched successfully'));
 }));
 
+router.put('/', verifyToken, asyncHandler(async function _updateOrgDetails(req, res, next) {
+    const orgData = req.body;
+    const tenant = req.tenant;
+    const user = req.user;
+    await require('../controllers/org/updateOrgDetails')(orgData, user, tenant);
+    return res.status(200).json(new apiResponse({}, 200, 'Organization data updated successfully'));
+}));
+
 module.exports = router;
