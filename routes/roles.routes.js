@@ -9,7 +9,8 @@ const { paramIdValidator, createRoleValidator, updatePermissionValidator, update
 
 router.get('/', verifyToken, authorize('view_role'), asyncHandler(async function _getRole(req, res, next) {
     const tenant = req.tenant;
-    const roles = await require('../controllers/role/getAllRolesByTenant')(tenant);
+    const { adminFlag } = req.body;
+    const roles = await require('../controllers/role/getAllRolesByTenant')(tenant, adminFlag);
     return res.status(200).json(new apiResponse({ roles }, 200, 'Roles fetched succesfully'));
 }));
 

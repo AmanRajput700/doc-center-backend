@@ -3,19 +3,25 @@ const roleSchema = require('../../models/tenant/roleSchema');
 const permissionSchema = require('../../models/tenant/permissionSchema');
 const redis = require('../../services/cache');
 
-module.exports = async function (tenant) {
+module.exports = async function (tenant, adminFlag) {
     const Role = getTenantModel(tenant.dbName, 'Role', roleSchema);
     const Permission = getTenantModel(tenant.dbName, 'Permission', permissionSchema);
+    const cacheKey = `roles:${tenant.dbName}:${adminFlag}`;
 
     const roles = await redis.get(`roles:${tenant.dbName}`);
     if (roles) return JSON.parse(roles);
 
-    let dbRoles = await Role.aggregate([
-        {
+    let pipeline = [];
+
+    if (adminFlag) {
+        pipeline.push({
             $match: {
                 isSystemRole: false
             }
-        },
+        });
+    }
+
+    pipeline.push(
         {
             $lookup: {
                 from: 'users',
@@ -36,7 +42,9 @@ module.exports = async function (tenant) {
                 users: 0
             }
         }
-    ]);
+    );
+
+    let dbRoles = await Role.aggregate(pipeline);
 
     // for extra idea how to populate aggregated res
     // dbRoles = await Role.populate(dbRoles, {
@@ -44,6 +52,6 @@ module.exports = async function (tenant) {
     //     select: 'displayName'
     // });
 
-    await redis.set(`roles:${tenant.dbName}`, JSON.stringify(dbRoles), "EX", 300);
+    await redis.set(cacheKey, JSON.stringify(dbRoles), "EX", 300);
     return dbRoles;
 }
