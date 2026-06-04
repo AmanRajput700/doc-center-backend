@@ -53,7 +53,7 @@ module.exports = asyncHandler(async function (req, res, next) {
 
         const difference = now - lastActive;
 
-        if (difference > 1000 * 60 * 5) {
+        if (difference > 1000 * 60 * 5 || user.lastActivateAt === undefined) {
             user.lastActivateAt = new Date();
             await user.save({ validateBeforeSave: false });
         }

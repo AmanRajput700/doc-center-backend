@@ -1,8 +1,12 @@
 const generateS3Key = require('../../utils/generateS3Key');
 const { generateUploadUrl } = require('../../services/s3.service');
 const documentSchema = require('../../models/tenant/documentSchema');
+const storageSchema = require('../../models/tenant/storageSchema');
 const getTenantModel = require('../../utils/getTenantModel');
 const path = require('node:path');
+const plans = require('../../config/plans');
+const createHttpError = require('http-errors');
+const { STATUS_CODE, ERROR_MESSAGE } = require('../../utils/constant');
 
 module.exports = async function (tenant, fileData, userId) {
     let { fileName, contentType, folderId = 'root', size } = fileData;
@@ -17,6 +21,14 @@ module.exports = async function (tenant, fileData, userId) {
     const storedName = path.basename(key);
 
     const Document = getTenantModel(dbName, 'Document', documentSchema);
+    const Storage = getTenantModel(dbName, 'Storage', storageSchema);
+
+    const storage = await Storage.findOne({ tenantId: tenant._id });
+
+    const plan = plans[tenant.currentPlan];
+    if ((storage.storageUsed + size) > plan.storageLimit) {
+        throw new createHttpError(STATUS_CODE.FORBIDDEN, ERROR_MESSAGE.STORAGE_EXCEED);
+    }
 
     const existingDocs = await Document.find({
         originalFileName: new RegExp(`^${baseName}(_\\d+)?${ext}$`, 'i'), folderId
