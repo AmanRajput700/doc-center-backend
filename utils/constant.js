@@ -41,7 +41,9 @@ const ERROR_MESSAGE = {
   API_KEY_MISSING: 'API key missing',
 
 
-  STORAGE_NOT_FOUND: 'Storage not found'
+  STORAGE_NOT_FOUND: 'Storage not found',
+  STORAGE_EXCEED: 'Storage limit exceed',
+  USER_LIMIT_EXCEED: 'User limit exceed'
 };
 
 const STATUS_CODE = Object.freeze({
@@ -66,7 +68,7 @@ const STATUS_CODE = Object.freeze({
   INTERNAL_SERVER_ERROR: 500,
   BAD_GATEWAY: 502,
   SERVICE_UNAVAILABLE: 503,
-  GATEWAY_TIMEOUT: 504
+  GATEWAY_TIMEOUT: 504,
 
 });
 
