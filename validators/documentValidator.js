@@ -12,7 +12,7 @@ const documentUploadValidator = [
     body('contentType')
         .trim()
         .notEmpty()
-        .withMessage('Content type is required')
+        .withMessage('File extension is not allowed')
         .isString()
         .withMessage('Content type must be a string'),
 
