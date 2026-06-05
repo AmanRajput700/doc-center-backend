@@ -18,6 +18,5 @@ module.exports = async function (tenant) {
     
     const lastSevenDays = new Date(Date.now() - 1000 * 60 * 60 * 24 * 7);
     const docsAddedThisWeek = await Document.countDocuments({ isDeleted: false, createdAt: { $gte: lastSevenDays } });
-    const docs = await Document.find({ isDeleted: false }).populate('uploadedBy', 'firstName lastName email').sort({ createdAt: -1 }).limit(5)
-    return { docs, storageDetails, planDetails, docsAddedThisWeek };
+    return {  storageDetails, planDetails, docsAddedThisWeek };
 };

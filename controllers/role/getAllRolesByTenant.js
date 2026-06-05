@@ -2,6 +2,8 @@ const getTenantModel = require('../../utils/getTenantModel');
 const roleSchema = require('../../models/tenant/roleSchema');
 const permissionSchema = require('../../models/tenant/permissionSchema');
 const redis = require('../../services/cache');
+const parseBoolean = require('../../utils/parseBoolean');
+
 
 module.exports = async function (tenant, adminFlag) {
     const Role = getTenantModel(tenant.dbName, 'Role', roleSchema);
@@ -13,7 +15,7 @@ module.exports = async function (tenant, adminFlag) {
 
     let pipeline = [];
 
-    if (adminFlag) {
+    if (!parseBoolean(adminFlag)) {
         pipeline.push({
             $match: {
                 isSystemRole: false
