@@ -9,6 +9,7 @@ const permissionSeeder = require('../../seeders/tenant/permissionSeeder');
 const roleSeeder = require('../../seeders/tenant/roleSeeder');
 const getTenantModel = require('../../utils/getTenantModel');
 const storageSchema = require('../../models/tenant/storageSchema');
+const notificationPreferenceSeeder = require('../../seeders/tenant/notificationPrefrenceSeeder');
 
 module.exports = async function (userData) {
     const { password, confirmPassword, token } = userData;
@@ -24,7 +25,7 @@ module.exports = async function (userData) {
     await permissionSeeder(tenantDB);
     const role = await roleSeeder(tenantDB);
     await Storage.create({ tenantId: tenant._id });
-    await User.create({
+    const user = await User.create({
         firstName: tenant.applicant.firstName,
         lastName: tenant.applicant.lastName,
         email: tenant.applicant.email,
@@ -32,6 +33,8 @@ module.exports = async function (userData) {
         role: role._id,
         status: 'active',
     });
+
+    await notificationPreferenceSeeder(tenant.dbName, user._id, tenant._id);
 
     await TenantUserMap.create({
         email: tenant.applicant.email,

@@ -19,9 +19,10 @@ router.get('/', verifyToken, authorize('view_user'), asyncHandler(async function
 }));
 
 router.get('/me', verifyToken, asyncHandler(async function _me(req, res, next) {
+  const tenant = req.tenant;
   const userId = req.user._id;
-  const userData = await require('../controllers/user/me')(userId, req.tenant.dbName);
-  return res.status(200).json(new apiResponse({ userData }, 200, 'User Data fetched succesfully'));
+  const { user, userNotificationPreferences } = await require('../controllers/user/me')(userId, tenant);
+  return res.status(200).json(new apiResponse({ user, userNotificationPreferences }, 200, 'User Data fetched succesfully'));
 }));
 
 router.put('/', verifyToken, validate(updateUserValidator), asyncHandler(async function _updateProfile(req, res, next) {
