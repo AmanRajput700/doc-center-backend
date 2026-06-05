@@ -7,6 +7,7 @@ const createHttpError = require('http-errors');
 const { ERROR_MESSAGE, STATUS_CODE } = require('../../utils/constant');
 const jwt = require('jsonwebtoken');
 const redis = require('../../services/cache');
+const notificationPreferenceSeeder = require('../../seeders/tenant/notificationPrefrenceSeeder');
 
 module.exports = async function (userData) {
     const { token, password, confirmPassword } = userData;
@@ -41,6 +42,7 @@ module.exports = async function (userData) {
         password,
         role: decoded.role
     });
+    await notificationPreferenceSeeder(mapping.tenantId.dbName, user._id, mapping.tenantId._id)
     await TenantUserMap.updateOne({ email }, { $set: { status: 'active' } });
     await InviteMember.updateOne({ email }, { $set: { status: 'accepted' }, $unset: { inviteToken: 1 } });
     await redis.del(`user:${mapping.tenantId.dbName}`);

@@ -29,7 +29,7 @@ module.exports = async function (invitedBy, userData, orgName, tenant) {
     const activeUsers = await User.countDocuments({ status: 'active' });
     const pendingInvites = await InviteMember.countDocuments();
 
-    if (activeUsers + pendingInvites + 1 > plan.maxUsers) {
+    if (activeUsers + pendingInvites > plan.maxUsers) {
         throw createHttpError(
             STATUS_CODE.FORBIDDEN,
             ERROR_MESSAGE.USER_LIMIT_EXCEED

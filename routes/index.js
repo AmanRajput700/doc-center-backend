@@ -12,5 +12,6 @@ router.use('/permissions', require('./permissions.routes'));
 router.use('/orgs', require('./orgs.routes'));
 router.use('/api-key', require('./apikey.routes'));
 router.use('/dashboard', require('./dashboard.routes'));
+router.use('/notifications', require('./notification.routes'));
 
 module.exports = router;
