@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weekly Usage Report</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7fb;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .header {
+            background-color: #2563eb;
+            color: #ffffff;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .header p {
+            margin-top: 10px;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 35px 30px;
+            color: #333333;
+        }
+
+        .content h2 {
+            margin-top: 0;
+            color: #111827;
+        }
+
+        .summary-badge {
+            display: inline-block;
+            background-color: #dbeafe;
+            color: #1d4ed8;
+            padding: 10px 18px;
+            border-radius: 999px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            color: #111827;
+        }
+
+        .details-box {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .metrics-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .metrics-table th {
+            background-color: #f3f4f6;
+            color: #374151;
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .metrics-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .metrics-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .top-users-list {
+            padding-left: 18px;
+            margin: 0;
+        }
+
+        .top-users-list li {
+            margin-bottom: 8px;
+        }
+
+        .member-list {
+            padding-left: 18px;
+            margin: 0;
+        }
+
+        .member-list li {
+            margin-bottom: 8px;
+        }
+
+        .highlight {
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        .footer {
+            padding: 20px;
+            font-size: 13px;
+            color: #777777;
+            text-align: center;
+            background-color: #f9fafb;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- HEADER -->
+        <div class="header">
+            <h1><%= orgName %></h1>
+            <p>Weekly Usage Report</p>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="content">
+
+            <h2>Weekly Organization Summary</h2>
+
+            <p>
+                Hello Admin,
+            </p>
+
+            <p>
+                Please find below the activity summary for
+                <strong><%= reportStartDate %></strong>
+                to
+                <strong><%= reportEndDate %></strong>.
+            </p>
+
+            <div style="text-align:center;">
+                <span class="summary-badge">
+                    Weekly Activity Overview
+                </span>
+            </div>
+
+            <!-- STORAGE SECTION -->
+
+            <div class="section-title">
+                Storage Overview
+            </div>
+
+            <div class="details-box">
+                <table class="metrics-table">
+                    <tr>
+                        <th>Metric</th>
+                        <th>Value</th>
+                    </tr>
+                    <tr>
+                        <td>Files Added</td>
+                        <td class="highlight"><%= storage.filesAdded %></td>
+                    </tr>
+                    <tr>
+                        <td>Files Deleted</td>
+                        <td><%= storage.filesDeleted %></td>
+                    </tr>
+                    <tr>
+                        <td>Files Modified</td>
+                        <td><%= storage.filesModified %></td>
+                    </tr>
+                    <tr>
+                        <td>Storage Used</td>
+                        <td><%= storage.storageUsed %></td>
+                    </tr>
+                    <tr>
+                        <td>Storage Growth</td>
+                        <td><%= storage.storageGrowth %></td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- USER SECTION -->
+
+            <div class="section-title">
+                User Activity
+            </div>
+
+            <div class="details-box">
+                <table class="metrics-table">
+                    <tr>
+                        <th>Metric</th>
+                        <th>Value</th>
+                    </tr>
+                    <tr>
+                        <td>New Members</td>
+                        <td><%= users.newMembers %></td>
+                    </tr>
+                    <tr>
+                        <td>Removed Members</td>
+                        <td><%= users.removedMembers %></td>
+                    </tr>
+                    <tr>
+                        <td>Active Members</td>
+                        <td><%= users.activeMembers %></td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- ROLE CHANGES -->
+
+            <div class="section-title">
+                Role & Permission Changes
+            </div>
+
+            <div class="details-box">
+                <table class="metrics-table">
+                    <tr>
+                        <th>Metric</th>
+                        <th>Value</th>
+                    </tr>
+                    <tr>
+                        <td>New Roles Created</td>
+                        <td><%= roleChanges.newRolesCreated %></td>
+                    </tr>
+                    <tr>
+                        <td>Roles Updated</td>
+                        <td><%= roleChanges.rolesUpdated %></td>
+                    </tr>
+                    <tr>
+                        <td>Users With Role Changes</td>
+                        <td><%= roleChanges.usersWithRoleChanges %></td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- TOP USERS -->
+
+            <div class="section-title">
+                Top Active Users
+            </div>
+
+            <div class="details-box">
+
+                <% if(topUsers && topUsers.length) { %>
+
+                    <table class="metrics-table">
+                        <tr>
+                            <th>User</th>
+                            <th>Uploads</th>
+                        </tr>
+
+                        <% topUsers.forEach(user => { %>
+                            <tr>
+                                <td><%= user.name %></td>
+                                <td><%= user.uploads %></td>
+                            </tr>
+                        <% }) %>
+
+                    </table>
+
+                <% } else { %>
+
+                    <p>No user activity recorded this week.</p>
+
+                <% } %>
+
+            </div>
+
+            <!-- NEW MEMBERS -->
+
+            <% if (newMembers && newMembers.length) { %>
+
+                <div class="section-title">
+                    New Members Added
+                </div>
+
+                <div class="details-box">
+                    <ul class="member-list">
+
+                        <% newMembers.forEach(member => { %>
+                            <li>
+                                <strong><%= member.name %></strong>
+                                <% if(member.email) { %>
+                                    - <%= member.email %>
+                                <% } %>
+                            </li>
+                        <% }) %>
+
+                    </ul>
+                </div>
+
+            <% } %>
+
+            <!-- REMOVED MEMBERS -->
+
+            <% if (removedMembers && removedMembers.length) { %>
+
+                <div class="section-title">
+                    Removed Members
+                </div>
+
+                <div class="details-box">
+                    <ul class="member-list">
+
+                        <% removedMembers.forEach(member => { %>
+                            <li>
+                                <strong><%= member.name %></strong>
+                                <% if(member.email) { %>
+                                    - <%= member.email %>
+                                <% } %>
+                            </li>
+                        <% }) %>
+
+                    </ul>
+                </div>
+
+            <% } %>
+
+            <!-- ROLE DETAILS -->
+
+            <% if (roleUpdates && roleUpdates.length) { %>
+
+                <div class="section-title">
+                    Role Updates
+                </div>
+
+                <div class="details-box">
+
+                    <ul class="member-list">
+
+                        <% roleUpdates.forEach(role => { %>
+                            <li>
+                                <strong><%= role.name %></strong>
+
+                                <% if(role.action) { %>
+                                    - <%= role.action %>
+                                <% } %>
+                            </li>
+                        <% }) %>
+
+                    </ul>
+
+                </div>
+
+            <% } %>
+
+            <p style="margin-top:30px;">
+                This report was generated automatically and summarizes organization activity during the selected reporting period.
+            </p>
+
+        </div>
+
+        <!-- FOOTER -->
+
+        <div class="footer">
+            © <%= currentYear %> <%= orgName %>. All rights reserved.
+        </div>
+
+    </div>
+
+</body>
+
+</html>

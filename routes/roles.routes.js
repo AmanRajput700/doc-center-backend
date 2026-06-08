@@ -30,7 +30,7 @@ router.put('/permissions/:id', verifyToken, authorize('assign_permission'), vali
     const roleId = req.params.id;
     const permissionData = req.body;
     const userId = req.user._id;
-    const updatedRole = await require('../controllers/role/updateRolePermission')(roleId, userId, permissionData, req.tenant.dbName);
+    const updatedRole = await require('../controllers/role/updateRolePermission')(roleId, userId, permissionData, req.tenant);
     return res.status(200).json(new apiResponse({ updatedRole }, 200, 'Permission updated succesfully'));
 }));
 
