@@ -114,4 +114,12 @@ router.post('/logout',
     })
 );
 
+// router.get('/:slug',
+//     asyncHandler(async function _verifyTenantSlug(req, res, next) {
+//         const slug = req.params.slug;
+//         const verifiedTenant = await require('../controllers/auth/verifyTenantSlug.js')(slug);
+//         return res.status(200).json(new apiResponse({ verifiedTenant }, 200, 'Tenant Slug verified succesfully'));
+//     })
+// );
+
 module.exports = router;
