@@ -6,6 +6,7 @@ const { STATUS_CODE, ERROR_MESSAGE } = require('../../utils/constant');
 const redis = require('../../services/cache');
 const notificationPreferenceSchema = require('../../models/tenant/notificationPreferenceSchema');
 const securityAlertEmail = require('../../utils/emails/securityAlertsEmail');
+const { addEmailJob } = require('../../queues/producers/emailProducers');
 
 
 module.exports = async function (userId, roleId, tenant, adminUser) {
@@ -48,7 +49,7 @@ module.exports = async function (userId, roleId, tenant, adminUser) {
             ]
         };
 
-        await securityAlertEmail(alertData);
+        await addEmailJob('security-alert', alertData);
     }
     await redis.del(`user:${dbName}`);
     return user;
