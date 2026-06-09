@@ -7,6 +7,7 @@ const redis = require('../../services/cache');
 const createHttpError = require('http-errors');
 const { STATUS_CODE, ERROR_MESSAGE } = require('../../utils/constant');
 const securityAlertEmail = require('../../utils/emails/securityAlertsEmail');
+const { addEmailJob } = require('../../queues/producers/emailProducers');
 
 module.exports = async function (roleId, userId, permissionData, tenant) {
     const { dbName, _id: tenantId } = tenant;
@@ -139,7 +140,8 @@ module.exports = async function (roleId, userId, permissionData, tenant) {
                     ]
                 };
 
-                return securityAlertEmail(alertData);
+                // return securityAlertEmail(alertData);
+                return addEmailJob('security-alert',alertData);
             })
     );
 

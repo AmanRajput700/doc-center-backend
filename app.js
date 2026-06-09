@@ -5,6 +5,8 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 require('./jobs/deleteS3Documents');
 require('./jobs/deleteInvitedUser');
+require('./queues/workers/emailWorker');
+console.log('Email Worker Started');
 
 var indexRouter = require('./routes/index');
 

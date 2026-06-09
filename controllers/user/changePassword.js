@@ -4,6 +4,7 @@ const createHttpError = require('http-errors');
 const getTenantModel = require('../../utils/getTenantModel');
 const notificationPreferenceSchema = require('../../models/tenant/notificationPreferenceSchema');
 const securityAlertEmail = require('../../utils/emails/securityAlertsEmail');
+const { addEmailJob } = require('../../queues/producers/emailProducers');
 
 module.exports = async function (data, userId, tenant) {
     const { dbName, _id: tenantId } = tenant;
@@ -35,7 +36,7 @@ module.exports = async function (data, userId, tenant) {
                 }
             ]
         };
-        await securityAlertEmail(alertData);
+        await addEmailJob('security-alert', alertData);
     }
 
     user.password = newPassword;

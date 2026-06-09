@@ -5,6 +5,7 @@ const { STATUS_CODE, ERROR_MESSAGE } = require('../../utils/constant');
 const storageSchema = require('../../models/tenant/storageSchema');
 const docUploadedSuccessfullyEmail = require('../../utils/emails/docsUploadedEmail');
 const notificationPreferenceSchema = require('../../models/tenant/notificationPreferenceSchema');
+const { addEmailJob } = require('../../queues/producers/emailProducers');
 
 module.exports = async function (documentId, tenant) {
     const { dbName, _id: tenantId } = tenant;
@@ -47,7 +48,7 @@ module.exports = async function (documentId, tenant) {
     );
     const Docdata = { firstName: document.uploadedBy.firstName, lastName: document.uploadedBy.lastName, orgName: tenant.orgName, email: document.uploadedBy.email, uploadDate: document.createdAt, documents: [document] };
     if (notification.emailNotifications.emailOnUpload) {
-        await docUploadedSuccessfullyEmail(Docdata);
+        await addEmailJob('doc-upload', Docdata);
     }
 
     return document;
