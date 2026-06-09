@@ -8,7 +8,7 @@ module.exports = {
         {
             name: 'weeklyUsageReport',
             title: 'Weekly Usage Report',
-            description: 'Get a summary of activity every Monday morning.'
+            description: 'Get a summary of activity every Saturday night.'
         },
         {
             name: 'securityAlerts',

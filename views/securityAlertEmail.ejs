@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Security Alert</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7fb;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background-color: #dc2626;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .content {
+            padding: 40px 30px;
+            color: #333333;
+        }
+
+        .content h2 {
+            margin-top: 0;
+        }
+
+        .alert-badge {
+            display: inline-block;
+            background-color: #fee2e2;
+            color: #991b1b;
+            padding: 10px 20px;
+            border-radius: 999px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .details-box {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .detail-row {
+            margin-bottom: 12px;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: #374151;
+        }
+
+        .footer {
+            padding: 20px;
+            font-size: 13px;
+            color: #777777;
+            text-align: center;
+            background-color: #f9fafb;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="header">
+            <h1><%= orgName %></h1>
+        </div>
+
+        <div class="content">
+
+            <h2><%= alertTitle %></h2>
+
+            <p>
+                Hello
+                <strong>
+                    <%= firstName %> <%= lastName %>
+                </strong>,
+            </p>
+
+            <p>
+                <%= alertMessage %>
+            </p>
+
+            <div style="text-align:center;">
+                <span class="alert-badge">
+                    🔒 Security Alert
+                </span>
+            </div>
+
+            <div class="details-box">
+
+                <div class="detail-row">
+                    <span class="detail-label">Event Type:</span>
+                    <%= alertType %>
+                </div>
+
+                <div class="detail-row">
+                    <span class="detail-label">Date & Time:</span>
+                    <%= eventDate %>
+                </div>
+
+                <% if(performedBy) { %>
+                <div class="detail-row">
+                    <span class="detail-label">Performed By:</span>
+                    <%= performedBy %>
+                </div>
+                <% } %>
+
+                <% if(details && details.length) { %>
+
+                    <hr style="border:none;border-top:1px solid #e5e7eb;margin:20px 0;">
+
+                    <% details.forEach(item => { %>
+                        <div class="detail-row">
+                            <span class="detail-label">
+                                <%= item.label %>:
+                            </span>
+                            <%= item.value %>
+                        </div>
+                    <% }) %>
+
+                <% } %>
+
+            </div>
+
+            <p>
+                If you did not expect this activity, please contact your
+                administrator immediately.
+            </p>
+
+        </div>
+
+        <div class="footer">
+            © <%= currentYear %> <%= orgName %>. All rights reserved.
+        </div>
+
+    </div>
+
+</body>
+
+</html>

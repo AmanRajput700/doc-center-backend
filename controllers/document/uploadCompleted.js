@@ -3,11 +3,14 @@ const documentSchema = require('../../models/tenant/documentSchema');
 const createHttpError = require('http-errors');
 const { STATUS_CODE, ERROR_MESSAGE } = require('../../utils/constant');
 const storageSchema = require('../../models/tenant/storageSchema');
+const docUploadedSuccessfullyEmail = require('../../utils/emails/docsUploadedEmail');
+const notificationPreferenceSchema = require('../../models/tenant/notificationPreferenceSchema');
 
 module.exports = async function (documentId, tenant) {
     const { dbName, _id: tenantId } = tenant;
     const Document = getTenantModel(dbName, 'Document', documentSchema);
     const Storage = getTenantModel(dbName, 'Storage', storageSchema);
+    const NotificationPreference = getTenantModel(dbName, 'NotificationPreference', notificationPreferenceSchema);
 
     const document = await Document.findOneAndUpdate(
         {
@@ -22,8 +25,12 @@ module.exports = async function (documentId, tenant) {
         {
             returnDocument: 'after'
         }
-    );
+    ).populate('uploadedBy', 'firstName lastName email')
+        .lean();
+
+    const notification = await NotificationPreference.findOne({ userId: document.uploadedBy._id, tenantId }).lean();
     if (!document) throw new createHttpError(STATUS_CODE.NOT_FOUND, ERROR_MESSAGE.DOC_NOT_FOUND);
+
     await Storage.findOneAndUpdate(
         {
             tenantId
@@ -38,7 +45,10 @@ module.exports = async function (documentId, tenant) {
             }
         }
     );
-    console.log("done");
+    const Docdata = { firstName: document.uploadedBy.firstName, lastName: document.uploadedBy.lastName, orgName: tenant.orgName, email: document.uploadedBy.email, uploadDate: document.createdAt, documents: [document] };
+    if (notification.emailNotifications.emailOnUpload) {
+        await docUploadedSuccessfullyEmail(Docdata);
+    }
 
     return document;
 }

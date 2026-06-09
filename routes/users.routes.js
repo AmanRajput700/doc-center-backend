@@ -35,20 +35,24 @@ router.put('/', verifyToken, validate(updateUserValidator), asyncHandler(async f
 router.put('/:userId/roles/:roleId', verifyToken, authorize('assign_role'), validate(validateIds), asyncHandler(async function _updateUserRole(req, res, next) {
   const userId = req.params.userId;
   const roleId = req.params.roleId;
-  const updateduser = await require('../controllers/user/assignRoleToUser')(userId, roleId, req.tenant.dbName);
+  const adminUser = req.user;
+  const tenant = req.tenant;
+  const updateduser = await require('../controllers/user/assignRoleToUser')(userId, roleId, tenant, adminUser);
   return res.status(200).json(new apiResponse({ updateduser }, 200, 'Role updated succesfully'));
 }));
 
 router.post('/change-password', verifyToken, validate(changePasswordValidator), asyncHandler(async function _changePassword(req, res, next) {
   const data = req.body;
   const userId = req.user._id;
-  await require('../controllers/user/changePassword')(data, userId, req.tenant.dbName);
+  await require('../controllers/user/changePassword')(data, userId, req.tenant);
   return res.status(200).json(new apiResponse({}, 200, 'User Password changed succesfully'));
 }));
 
 router.delete('/:id', verifyToken, authorize('delete_user'), validate(paramIdValidator), asyncHandler(async function _deleteUser(req, res, next) {
   const userId = req.params.id;
-  const deletedUser = await require('../controllers/user/deleteUser')(userId, req.tenant.dbName);
+  const adminUser = req.user;
+  const tenant = req.tenant;
+  const deletedUser = await require('../controllers/user/deleteUser')(userId, tenant, adminUser);
   return res.status(200).json(new apiResponse({ deletedUser }, 200, 'User delted Succesfully'));
 }));
 
