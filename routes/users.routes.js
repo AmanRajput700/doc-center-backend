@@ -6,6 +6,7 @@ const router = express.Router();
 const validate = require('../middleware/validate');
 const { updateUserValidator, changePasswordValidator, validateIds, paramIdValidator } = require('../validators/userValidator');
 const authorize = require('../middleware/authorize');
+const { emitToUser, emitToTenant } = require('../socket/services/emitService');
 
 router.get('/', verifyToken, authorize('view_user'), asyncHandler(async function _getUser(req, res, next) {
   const tenant = req.tenant;
@@ -21,6 +22,13 @@ router.get('/', verifyToken, authorize('view_user'), asyncHandler(async function
 router.get('/me', verifyToken, asyncHandler(async function _me(req, res, next) {
   const tenant = req.tenant;
   const userId = req.user._id;
+  emitToTenant(
+    tenant._id,
+    'hello',
+    {
+      message: 'Socket Working'
+    }
+  );
   const { user, userNotificationPreferences } = await require('../controllers/user/me')(userId, tenant);
   return res.status(200).json(new apiResponse({ user, userNotificationPreferences }, 200, 'User Data fetched succesfully'));
 }));
