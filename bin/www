@@ -7,6 +7,8 @@ require('dotenv').config();
 var app = require('../app');
 var debug = require('debug')('doc-center:server');
 var http = require('http');
+const { initializeSocket } = require('../socket/index.js');
+const socketManager = require('../socket/socketManager.js');
 
 const connectToDb = require('../services/db.js');
 
@@ -22,6 +24,8 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
+const io = initializeSocket(server);
+socketManager(io);
 
 /**
  * Listen on provided port, on all network interfaces.
