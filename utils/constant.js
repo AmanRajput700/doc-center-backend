@@ -20,6 +20,7 @@ const ERROR_MESSAGE = {
   OTP_RESEND_LIMIT: "Cooldown period for otp resend",
 
   EMAIL_INVALID: 'The provided email address is invalid.',
+  EMAIL_SEND_FAILED: 'Sending Email Failed',
 
   INVITE_ALREADY_SENT: 'Invite has been already sent on this email',
 
@@ -43,7 +44,9 @@ const ERROR_MESSAGE = {
 
   STORAGE_NOT_FOUND: 'Storage not found',
   STORAGE_EXCEED: 'Storage limit exceed',
-  USER_LIMIT_EXCEED: 'User limit exceed'
+  USER_LIMIT_EXCEED: 'User limit exceed',
+
+  OTP_EXPIRED: "OTP expired"
 };
 
 const STATUS_CODE = Object.freeze({

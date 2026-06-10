@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const crypto = require('node:crypto')
+const crypto = require('node:crypto');
+const redis = require('../../services/cache');
 
 const userSchema = new mongoose.Schema(
     {
@@ -45,26 +46,10 @@ const userSchema = new mongoose.Schema(
         lastActivateAt: {
             type: Date
         },
-        otp: {
-            type: String
-        },
-        otpExpiry: {
-            type: Date
-        },
         resetPasswordToken: {
             type: String
         },
         resetPasswordTokenExpiry: {
-            type: Date
-        },
-        otpAttempts: {
-            type: Number,
-            default: 0
-        },
-        otpBlockedUntil: {
-            type: Date
-        },
-        otpResendBlockedUntil: {
             type: Date
         },
         failedLogInAttempts: {
@@ -86,13 +71,18 @@ userSchema.methods.comparePassword = async function (password) {
     return await bcrypt.compare(password, this.password);
 };
 
-userSchema.methods.generateOTP = function () {
+userSchema.methods.generateOTP = async function (slug) {
     const otp = Math.floor(100000 + Math.random() * 900000);
-    this.otp = crypto.createHash('sha256').update(String(otp)).digest('hex');
-    this.otpExpiry = Date.now() + Number(process.env.OTP_EXPIRY_TIME);
-    this.otpAttempts = 0;
-    this.otpBlockedUntil = undefined;
-    let expiryTime = Date.now() + Number(process.env.OTP_EXPIRY_TIME);
+    const hashedOtp = crypto.createHash('sha256').update(String(otp)).digest('hex');
+    const expiryMs = Number(process.env.OTP_EXPIRY_TIME);
+    
+    const pipeline = redis.multi();
+    pipeline.set(`otp:${slug}:${this._id}`,hashedOtp,'PX',expiryMs);
+    pipeline.set(`otp_attempts:${slug}:${this._id}`,0,'PX',expiryMs);
+    pipeline.del(`otp_blocked:${slug}:${this._id}`);
+    await pipeline.exec();
+
+    let expiryTime = Date.now() + expiryMs;
     return { otp, expiryTime };
 }
 
