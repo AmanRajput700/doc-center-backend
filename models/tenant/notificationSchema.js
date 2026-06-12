@@ -7,7 +7,7 @@ module.exports = new mongoose.Schema({
         ref: 'User',
         index: true
     },
-    senderId: {
+    createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
@@ -31,5 +31,5 @@ module.exports = new mongoose.Schema({
     readAt: {
         type: Date
     }
-    
-});
+
+}, { timestamps: true });

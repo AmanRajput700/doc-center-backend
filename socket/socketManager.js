@@ -10,14 +10,6 @@ module.exports = function socketManager(io) {
         const userRoom = joinUserRoom(socket);
         const tenantRoom = joinTenantRoom(socket);
 
-        console.log('Connected User');
-
-        console.log('User Room:', userRoom);
-
-        console.log('Tenant Room:', tenantRoom);
-
-        console.log(socket.rooms);
-
         socket.on('disconnect', () => {
             console.log('User Disconnected');
         });
