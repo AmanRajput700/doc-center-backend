@@ -21,7 +21,8 @@ router.post('/presigned-upload-url', verifyToken, authorize('upload_document'), 
 router.post('/:id/complete', verifyToken, authorize('upload_document'), validate(paramIdValidator), asyncHandler(async function _uploadComplete(req, res, next) {
     const tenant = req.tenant;
     const documentId = req.params.id;
-    const document = await require('../controllers/document/uploadCompleted')(documentId, tenant);
+    const user = req.user;
+    const document = await require('../controllers/document/uploadCompleted')(documentId, tenant, user);
     return res.status(200).json(new apiResponse({ document }, 200, 'Document Upload Completed'));
 }));
 
