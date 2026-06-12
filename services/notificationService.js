@@ -20,7 +20,7 @@ async function createNotification({ tenant, userId, title, message, type, metada
 
     emitToUser(userId, EVENTS.NOTIFICATION_RECEIVED, notification);
 
-    const unreadCount = await Notification.countDocuments({ userId, isRead: false });
+    const unreadCount = await getUnreadCount({ tenant, userId });
 
     emitToUser(
         userId,
@@ -47,7 +47,8 @@ async function createBulkNotifications({ tenant, userIds, title, message, type, 
 
     const createdNotifications = await Notification.insertMany(notifications);
 
-    createdNotifications.forEach(notification => {
+
+    for (const notification of createdNotifications) {
 
         emitToUser(
             notification.userId,
@@ -55,7 +56,16 @@ async function createBulkNotifications({ tenant, userIds, title, message, type, 
             notification
         );
 
-    });
+        const unreadCount = await getUnreadCount({ tenant, userId: notification.userId });
+
+        emitToUser(
+            notification.userId,
+            EVENTS.NOTIFICATION_UNREAD_COUNT,
+            {
+                count: unreadCount
+            }
+        );
+    }
 
     return createdNotifications;
 }

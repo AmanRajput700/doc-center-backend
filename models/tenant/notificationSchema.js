@@ -18,11 +18,17 @@ module.exports = new mongoose.Schema({
         type: String
     },
     type: {
-        type: String
+        type: String,
+        enum: [
+            'INFO',
+            'SUCCESS',
+            'ALERT'
+        ],
+        default: 'INFO'
     },
     metadata: {
-        documentId: mongoose.Schema.Types.ObjectId,
-        folderId: mongoose.Schema.Types.ObjectId
+        type: mongoose.Schema.Types.Mixed,
+        default: {}
     },
     isRead: {
         type: Boolean,

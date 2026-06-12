@@ -37,7 +37,7 @@ module.exports = async function (documentId, tenant, user) {
         userId: user._id,
         title: "Document Uploaded",
         message: `${document.originalFileName} uploaded Succesfully`,
-        type: 'Document',
+        type: 'SUCCESS',
         metadata: {
             docId: document._id
         },
@@ -68,6 +68,6 @@ module.exports = async function (documentId, tenant, user) {
     }
 
     await createNotification(notificationData);
-
+    console.log("Hello world");
     return document;
 }
