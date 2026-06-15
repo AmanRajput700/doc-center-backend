@@ -68,6 +68,5 @@ module.exports = async function (documentId, tenant, user) {
     }
 
     await createNotification(notificationData);
-    console.log("Hello world");
     return document;
 }

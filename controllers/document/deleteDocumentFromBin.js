@@ -7,7 +7,6 @@ const storageSchema = require('../../models/tenant/storageSchema');
 
 module.exports = async function (tenant, docId) {
     const { dbName, _id: tenantId } = tenant;
-    console.log(dbName)
 
     const Document = getTenantModel(dbName, 'Document', documentSchema);
     const Storage = getTenantModel(dbName, 'Storage', storageSchema);
@@ -31,9 +30,7 @@ module.exports = async function (tenant, docId) {
             $inc: {
                 storageUsed: -doc.size,
                 trashedFiles: -1
-            }
-        },
-        {
+            },
             $set: {
                 lastStorageUpdatedAt: new Date()
             }
