@@ -15,8 +15,8 @@ module.exports = async function (tenant) {
 
     const storageDetails = await Storage.findOne({ tenantId });
     const planDetails = plans[currentPlan];
-    
+
     const lastSevenDays = new Date(Date.now() - 1000 * 60 * 60 * 24 * 7);
-    const docsAddedThisWeek = await Document.countDocuments({ isDeleted: false, createdAt: { $gte: lastSevenDays } });
-    return {  storageDetails, planDetails, docsAddedThisWeek };
+    const docsAddedThisWeek = await Document.countDocuments({ isDeleted: false, uploadStatus: 'uploaded', createdAt: { $gte: lastSevenDays } });
+    return { storageDetails, planDetails, docsAddedThisWeek };
 };

@@ -11,7 +11,7 @@ module.exports = function socketManager(io) {
         const tenantRoom = joinTenantRoom(socket);
 
         socket.on('disconnect', () => {
-            console.log('User Disconnected');
+            // console.log('User Disconnected');
         });
 
     });

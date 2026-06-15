@@ -7,6 +7,8 @@ const redis = require('../../services/cache');
 const notificationPreferenceSchema = require('../../models/tenant/notificationPreferenceSchema');
 const securityAlertEmail = require('../../utils/emails/securityAlertsEmail');
 const { addEmailJob } = require('../../queues/producers/emailProducers');
+const { NOTIFICATION_RECEIVED } = require('../../socket/constants/events');
+const { createNotification } = require('../../services/notificationService');
 
 
 module.exports = async function (userId, roleId, tenant, adminUser) {
@@ -19,7 +21,9 @@ module.exports = async function (userId, roleId, tenant, adminUser) {
     );
 
 
-    const user = await User.findByIdAndUpdate(userId, { role: roleId }, { returnDocument: 'after' }).populate('role', 'name');
+    const user = await User.findByIdAndUpdate(userId, { role: roleId }, { returnDocument: 'after' }).populate('role', 'name').select('-password -refreshToken -failedLogInAttempts');
+    console.log("🚀 ~ user:", user)
+
     if (!user) throw new createHttpError(STATUS_CODE.NOT_FOUND, ERROR_MESSAGE.USER_NOT_FOUND);
 
     const roleName = user.role ? user.role.name : 'Unknown Role';
@@ -51,6 +55,15 @@ module.exports = async function (userId, roleId, tenant, adminUser) {
 
         await addEmailJob('security-alert', alertData);
     }
+
+    const notificationData = {
+        tenant,
+        userId: user._id,
+        title: 'Role Changed',
+        message: `Your role has been changed to ${roleName}`
+    }
+    await createNotification(notificationData);
+
     await redis.del(`user:${dbName}`);
     return user;
 }

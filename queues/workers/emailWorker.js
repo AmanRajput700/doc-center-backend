@@ -47,11 +47,11 @@ emailWorker.on('error', (error) => {
 });
 
 // Worker ready
-emailWorker.on('ready', () => {
-    logger.info({
-        queue: 'email-queue',
-        message: 'Email worker is ready',
-    });
-});
+// emailWorker.on('ready', () => {
+//     logger.info({
+//         queue: 'email-queue',
+//         message: 'Email worker is ready',
+//     });
+// });
 
 module.exports = emailWorker;
