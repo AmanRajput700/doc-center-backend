@@ -90,7 +90,7 @@ module.exports = async function (apiKey, data) {
         createdBy: document.uploadedBy
     };
 
-    await createNotification(notificationData);
     emitToTenant(tenant._id, DOCUMENT_UPLOADED);
+    await createNotification(notificationData);
     return document;
 }

@@ -20,7 +20,8 @@ module.exports = async function (apiData, tenant, userId) {
     await ApiKey.create({
         tenantId: _id,
         name,
-        hashedKey: rawApiKey,
+        key_hash: rawApiKey,
+        key_suffix: rawApiKey.slice(-4),
         createdBy: userId
     });
 
