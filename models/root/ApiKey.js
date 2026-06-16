@@ -10,7 +10,11 @@ const apiKeySchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    hashedKey: {
+    key_hash: {
+        type: String,
+        required: true
+    },
+    key_suffix: {
         type: String,
         required: true
     },
