@@ -33,13 +33,13 @@ const apiKeySchema = new mongoose.Schema({
 
 apiKeySchema.pre("save", async function () {
 
-    if (!this.isModified("key")) {
+    if (!this.isModified("key_hash")) {
         return;
     }
 
-    this.key = crypto
+    this.key_hash = crypto
         .createHash("sha256")
-        .update(this.key)
+        .update(this.key_hash)
         .digest("hex");
 });
 

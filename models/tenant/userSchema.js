@@ -68,17 +68,17 @@ userSchema.pre('save', async function () {
 });
 
 userSchema.methods.comparePassword = async function (password) {
-    return await bcrypt.compare(password, this.password);
+    return bcrypt.compare(password, this.password);
 };
 
 userSchema.methods.generateOTP = async function (slug) {
     const otp = Math.floor(100000 + Math.random() * 900000);
     const hashedOtp = crypto.createHash('sha256').update(String(otp)).digest('hex');
     const expiryMs = Number(process.env.OTP_EXPIRY_TIME);
-    
+
     const pipeline = redis.multi();
-    pipeline.set(`otp:${slug}:${this._id}`,hashedOtp,'PX',expiryMs);
-    pipeline.set(`otp_attempts:${slug}:${this._id}`,0,'PX',expiryMs);
+    pipeline.set(`otp:${slug}:${this._id}`, hashedOtp, 'PX', expiryMs);
+    pipeline.set(`otp_attempts:${slug}:${this._id}`, 0, 'PX', expiryMs);
     pipeline.del(`otp_blocked:${slug}:${this._id}`);
     await pipeline.exec();
 
