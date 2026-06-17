@@ -38,7 +38,7 @@ const ERROR_MESSAGE = {
   EMAIL_ALREAY_EXISTS: 'Email Already Exists',
 
 
-  API_NOT_FOUND: 'API Key not found',
+  API_KEY_NOT_FOUND: 'API Key not found',
   API_KEY_MISSING: 'API key missing',
 
 

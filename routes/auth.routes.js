@@ -6,6 +6,7 @@ const { completeOnboardingValidator, verifyTokenValidator, loginValidator, email
 const validate = require('../middleware/validate');
 const verifyToken = require('../middleware/verifyToken.js');
 const rateLimiter = require('../middleware/rateLimiter.js');
+const success = require('../utils/response.js');
 
 
 router.post('/forgot-password',
@@ -14,7 +15,7 @@ router.post('/forgot-password',
     asyncHandler(async function _forgotPassword(req, res, next) {
         const userData = req.body;
         const expiryTime = await require('../controllers/auth/forgot-password.js')(userData);
-        return res.status(200).json(new apiResponse({ expiryTime }, 200, 'OTP sent succesfully if account exists'));
+        return success(res, { expiryTime }, 'OTP sent succesfully if account exists');
     })
 );
 
@@ -23,7 +24,7 @@ router.post('/verify-forgot-password-otp',
     asyncHandler(async function _verifyOtp(req, res, next) {
         const userData = req.body;
         const resetPasswordToken = await require('../controllers/auth/verify-forgot-password-otp.js')(userData);
-        return res.status(200).json(new apiResponse({ resetPasswordToken }, 200, 'OTP verified'));
+        return success(res, { resetPasswordToken }, 'OTP Verified');
     })
 );
 
@@ -32,7 +33,7 @@ router.post('/reset-password',
     asyncHandler(async function _resetPassword(req, res, next) {
         const userData = req.body;
         const response = await require('../controllers/auth/reset-password.js')(userData);
-        return res.status(200).json(new apiResponse('', 200, 'Password Set successfully'));
+        return success(res, {}, 'Password Set Succesfully');
     })
 );
 
@@ -41,7 +42,7 @@ router.post('/resend-otp',
     asyncHandler(async function _resendOtp(req, res, next) {
         const email = req.body.email;
         const expiryTime = await require('../controllers/auth/resendForgotPasswordOtp.js')(email);
-        return res.status(200).json(new apiResponse({ expiryTime }, 200, 'OTP re-send succesfully'));
+        return success(res, { expiryTime }, 'OTP re-send succesfully');
     })
 );
 
@@ -50,7 +51,7 @@ router.post('/complete-onboarding',
     asyncHandler(async function _completeOnboarding(req, res, next) {
         const userData = req.body;
         await require('../controllers/auth/completeOnboardingController')(userData);
-        return res.status(201).json(new apiResponse({}, 201, 'user succesfully on boarded'));
+        return success(res, {}, 'User succesfully on-boarded', 201);
     })
 );
 
@@ -68,7 +69,7 @@ router.post('/login',
         // };
         res.cookie('accessToken', accessToken);
         res.cookie('refreshToken', refreshToken);
-        return res.status(200).json(new apiResponse({ accessToken, refreshToken }, 200, 'User Succefully logedIn'));
+        return success(res, { accessToken, refreshToken }, 'User Successfully LogedIn')
     })
 );
 
@@ -78,7 +79,7 @@ router.post('/verify-email',
     asyncHandler(async function _verifyEmail(req, res, next) {
         const email = req.body.email;
         const { slug } = await require('../controllers/auth/verifyEmail.js')(email);
-        return res.status(200).json(new apiResponse({ slug }, 200, 'Email verified succesfully'));
+        return success(res, { slug }, 'Email Verified Succesfully');
     })
 );
 
@@ -86,7 +87,7 @@ router.post('/refresh-access-token',
     asyncHandler(async function _refreshAccessToken(req, res, next) {
         const token = req.body.refreshToken;
         const { refreshToken, accessToken } = await require('../controllers/auth/refreshAccessToken.js')(token);
-        return res.status(200).json(new apiResponse({ refreshToken, accessToken }, 200, 'New access-token generated'));
+        return success(res, { refreshToken, accessToken }, 'New access-token generated');
     })
 );
 
@@ -94,7 +95,7 @@ router.get('/validate-secure-token',
     asyncHandler(async function _verifySetPasswordToken(req, res, next) {
         const token = req.query.token;
         const status = await require('../controllers/auth/validateTenantSetPasswordToken.js')(token);
-        return res.status(200).json(new apiResponse({ status }, 200, `Token ${status}`));
+        return success(res, { status }, `Token ${status}`);
     })
 );
 
@@ -110,7 +111,7 @@ router.post('/logout',
         const userId = req.user._id;
         const tenant = req.tenant;
         await require('../controllers/auth/logout.js')(userId, tenant.dbName);
-        return res.status(200).json(new apiResponse({}, 200, 'User logout succesfully'));
+        return success(res, {}, 'User logout successfully');
     })
 );
 
