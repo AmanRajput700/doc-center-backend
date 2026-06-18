@@ -18,6 +18,17 @@ const apiKeySchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    ssoSecret: {
+        iv: {
+            type: String
+        },
+        encrypted: {
+            type: String
+        },
+        tag: {
+            type: String
+        }
+    },
     isActive: {
         type: Boolean,
         default: true

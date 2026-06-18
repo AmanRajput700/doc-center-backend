@@ -9,8 +9,8 @@ const success = require('../utils/response');
 
 router.post('/', verifyToken, validate(apiKeyGeneratorValidator), asyncHandler(async function _generateApiKey(req, res, next) {
     const apiData = req.body;
-    const apiKey = await require('../controllers/apiKey/createApiKey')(apiData, req.tenant, req.user._id);
-    return success(res, { apiKey }, 'API Key generated succesfully', 201)
+    const { rawApiKey, rawSsoSecret } = await require('../controllers/apiKey/createApiKey')(apiData, req.tenant, req.user._id);
+    return success(res, { rawApiKey, rawSsoSecret }, 'API Key generated succesfully', 201)
 }));
 
 router.get('/', verifyToken, asyncHandler(async function _viewApiKey(req, res, next) {
