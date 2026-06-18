@@ -4,11 +4,15 @@ const userSchema = require('../../models/tenant/userSchema');
 const generateApiKey = require('../../utils/generateApiKey');
 const createHttpError = require('http-errors');
 const { STATUS_CODE, ERROR_MESSAGE } = require('../../utils/constant');
+const generateSsoSecret = require('../../utils/generateSsoSecret');
+const { encrypt } = require('../../utils/encryption');
 
 module.exports = async function (apiData, tenant, userId) {
     const { name } = apiData;
     const { _id, dbName } = tenant;
     const rawApiKey = generateApiKey();
+    const rawSsoSecret = generateSsoSecret();
+    const encryptedSsoSecret = encrypt(rawSsoSecret);
     const User = getTenantModel(dbName, 'User', userSchema);
 
     const api = await ApiKey.findOne({ tenantId: _id, name });
@@ -22,8 +26,9 @@ module.exports = async function (apiData, tenant, userId) {
         name,
         key_hash: rawApiKey,
         key_suffix: rawApiKey.slice(-4),
+        ssoSecret: encryptedSsoSecret,
         createdBy: userId
     });
 
-    return rawApiKey;
+    return { rawApiKey, rawSsoSecret };
 }
