@@ -13,6 +13,10 @@ module.exports = async function (tenant, fileData, userId) {
     let { fileName, contentType, folderId = 'root', size } = fileData;
     const { slug: tenantSlug, dbName, _id: tenantId } = tenant;
 
+    if (!folderId || folderId === 'root') {
+        folderId = undefined;
+    }
+
     const ext = path.extname(fileName);
     const baseName = path.basename(fileName, ext);
 
@@ -30,14 +34,14 @@ module.exports = async function (tenant, fileData, userId) {
     if ((storage.storageUsed + size) > plan.storageLimit) {
         throw new createHttpError(STATUS_CODE.FORBIDDEN, ERROR_MESSAGE.STORAGE_EXCEED);
     }
-    
+
     const existingDocs = await Document.find({
         originalFileName: new RegExp(`^${baseName}(_\\d+)?${ext}$`, 'i'), folderId
     }).sort({ createdAt: -1 });
-    
+
     if (existingDocs.length > 0) {
         let maxVersion = 0;
-        
+
         existingDocs.forEach(doc => {
             const match = doc.originalFileName.match(/_(\d+)\.[^.]+$/);
 
@@ -47,10 +51,10 @@ module.exports = async function (tenant, fileData, userId) {
                 maxVersion = Math.max(maxVersion, 1);
             }
         });
-        
+
         fileName = `${baseName}_${maxVersion + 1}${ext}`;
     }
-    
+
     const document = await Document.create({
         tenantId,
         originalFileName: fileName,
@@ -63,7 +67,7 @@ module.exports = async function (tenant, fileData, userId) {
         storageProvide: 's3',
         uploadStatus: 'pending'
     });
-    
+
     await checkStorageThreshold({ tenant, storage, incomingSize: size, plan });
     return { documentId: document._id, url, key };
 };

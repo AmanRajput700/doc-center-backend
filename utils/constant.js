@@ -7,6 +7,7 @@ const ERROR_MESSAGE = {
   INVALID_ORGNAME: 'Tenant already exists with same orgName.',
   INVALID_OTP: 'The provided otp is invalid.',
   INVALID_API_KEY: 'Invalid API Key',
+  INVALID_SSO_TOKEN: 'Invalid SSO token',
 
   USER_NOT_FOUND: 'User not found.',
   USER_ALREADY_EXISTS: 'A user with the provided email already exists.',
@@ -46,7 +47,10 @@ const ERROR_MESSAGE = {
   STORAGE_EXCEED: 'Storage limit exceed',
   USER_LIMIT_EXCEED: 'User limit exceed',
 
-  OTP_EXPIRED: "OTP expired"
+  OTP_EXPIRED: 'OTP expired',
+
+  SSO_TOKEN_REQUIRED: 'SSO token is required',
+
 };
 
 const STATUS_CODE = Object.freeze({
