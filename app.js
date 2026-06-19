@@ -38,6 +38,7 @@ app.get('/test', (req, res, next) => {
   res.send("test");
 });
 app.use('/api/v1', indexRouter);
+app.use('/sdk',require('./routes/sdk.routes'));
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
