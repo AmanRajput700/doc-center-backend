@@ -31,10 +31,51 @@ router.post('/upload-session', verifyToken, asyncHandler(async function (req, re
     return success(res, result, 'Upload session created');
 }));
 
+
+router.post('/folders', verifyToken, asyncHandler(async function (req, res) {
+    const tenant = req.tenant;
+    const userId = req.user._id;
+    const folderData = req.body;
+
+    const folder = await require('../controllers/document/createFolder')(userId, folderData, tenant);
+    return success(res, folder, 'New folder created successfully');
+}));
+
+router.get('/items', verifyToken, asyncHandler(async function (req, res) {
+    const items = await require('../controllers/sdk/listItems')(req.tenant, req.query);
+    return success(res, items, 'Items fetched successfully');
+}));
+
+router.get('/folders', verifyToken, asyncHandler(async function (req, res) {
+
+    const folders = await require('../controllers/sdk/getFolders')(req.tenant, req.query);
+    return success(res, folders, 'Folders fetched successfully');
+}));
+
 router.get('/documents', verifyToken, asyncHandler(async function (req, res) {
 
     const documents = await require('../controllers/sdk/getDocuments')(req.tenant, req.query);
     return success(res, documents, 'Documents fetched successfully');
 }));
+
+router.get('/documents/:id/view-url', verifyToken, asyncHandler(async function (req, res) {
+    const result = await require('../controllers/document/getPreSignedViewUrl')(req.params.id, req.tenant);
+    return success(res, result, 'View URL generated successfully');
+}));
+
+router.delete('/documents/:id', verifyToken, asyncHandler(async function (req, res) {
+    await require('../controllers/document/deleteDocument')(req.params.id, req.tenant);
+    return success(res, null, 'Document deleted successfully');
+}));
+
+router.delete('/folders/:id', verifyToken, asyncHandler(async function (req, res) {
+    await require('../controllers/document/deleteFolder')(req.params.id, req.tenant);
+    return success(res, null, 'Folder deleted successfully');
+}));
+
+router.post('/refresh-token', asyncHandler(async function (req, res) {
+    const { refreshToken, accessToken } = await require('../controllers/auth/refreshAccessToken')(req.body.refreshToken);
+    return success(res, { refreshToken, accessToken }, 'Access token exchanged Successfully');
+}))
 
 module.exports = router;
