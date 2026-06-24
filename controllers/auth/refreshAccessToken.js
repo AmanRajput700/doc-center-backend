@@ -13,6 +13,10 @@ module.exports = async (incomingRefreshToken) => {
         if (!tenant) throw new createHttpError(STATUS_CODE.UNAUTHORIZED, ERROR_MESSAGE.INVALID_USER);
         const User = getTenantModel(tenant.tenantId.dbName, 'User', userSchema);
         const user = await User.findOne({ email: tenant.email }).select('+refreshToken');
+        console.log(
+                'EXPECTED RT',
+                user.refreshToken.slice(-10)
+        );
         if (incomingRefreshToken !== user.refreshToken) throw new createHttpError(STATUS_CODE.UNAUTHORIZED, ERROR_MESSAGE.INVALID_USER);
         const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(User, user._id, tenant);
         return { accessToken, refreshToken };
