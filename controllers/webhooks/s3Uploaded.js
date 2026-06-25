@@ -9,6 +9,7 @@ const { addEmailJob } = require('../../queues/producers/emailProducers');
 const { createNotification } = require('../../services/notificationService');
 const { emitToUser, emitToTenant } = require('../../socket/services/emitService');
 const { DOCUMENT_UPLOADED } = require('../../socket/constants/events');
+const apiAnalyticsSchema = require('../../models/tenant/apiAnalyticsSchema');
 
 module.exports = async function (apiKey, data) {
 
@@ -25,7 +26,7 @@ module.exports = async function (apiKey, data) {
     const Document = getTenantModel(tenant.dbName, 'Document', documentSchema);
     const NotificationPreference = getTenantModel(tenant.dbName, 'NotificationPreference', notificationPreferenceSchema);
     const Storage = getTenantModel(tenant.dbName, 'Storage', storageSchema);
-
+    const ApiAnalytics = getTenantModel(tenant.dbName, 'ApiAnalytics', apiAnalyticsSchema);
 
     const document = await Document.findOneAndUpdate(
         {
@@ -45,7 +46,7 @@ module.exports = async function (apiKey, data) {
 
     if (!document) throw new createHttpError(STATUS_CODE.NOT_FOUND, ERROR_MESSAGE.DOC_NOT_FOUND);
 
-    await Storage.findOneAndUpdate(
+    const storage = await Storage.findOneAndUpdate(
         {
             tenantId: tenant._id
         },
@@ -57,8 +58,30 @@ module.exports = async function (apiKey, data) {
             $set: {
                 lastStorageUpdatedAt: new Date()
             }
+        },
+        {
+            new: true
         }
     );
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    await ApiAnalytics.findOneAndUpdate(
+        {
+            date: today
+        },
+        {
+            $set: {
+                storageUsed: storage.storageUsed
+            }
+        },
+        {
+            upsert: true,
+            new: true
+        }
+    );
+
     const preference = await NotificationPreference.findOne({
         userId: document.uploadedBy._id,
         tenantId: tenant._id,

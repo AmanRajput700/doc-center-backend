@@ -7,6 +7,7 @@ const { deleteObject } = require('../services/s3.service');
 const createHttpError = require('http-errors');
 const { STATUS_CODE, ERROR_MESSAGE } = require('../utils/constant');
 const folderSchema = require('../models/tenant/folderSchema');
+const apiAnalyticsSchema = require('../models/tenant/apiAnalyticsSchema');
 
 cron.schedule('0 0 16 * * *', async function () {
     try {
@@ -64,6 +65,35 @@ cron.schedule('0 0 16 * * *', async function () {
                     }
                 }
                 console.log(`Cleanup completed for tenant: ${tenant.slug}`);
+
+
+                const ApiAnalytics = getTenantModel(tenant.dbName, 'ApiAnalytics', apiAnalyticsSchema);
+
+                const storage = await Storage.findOne({
+                    tenantId: tenant._id
+                }).lean();
+
+                if (storage) {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    await ApiAnalytics.findOneAndUpdate(
+                        {
+                            date: today
+                        },
+                        {
+                            $set: {
+                                storageUsed: storage.storageUsed
+                            },
+                            $setOnInsert: {
+                                requests: 0
+                            }
+                        },
+                        {
+                            upsert: true,
+                            new: true
+                        }
+                    );
+                }
             } catch (err) {
                 console.error(`Tenant cleanup failed: ${tenant.dbName}`, err.message);
             }
