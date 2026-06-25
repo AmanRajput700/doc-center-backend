@@ -6,11 +6,11 @@ const apiResponse = require('../utils/apiResponse');
 const success = require('../utils/response');
 const router = express.Router();
 
-router.get('/stats', verifyToken, asyncHandler(async function _getRecentUploadedDocs(req, res, next) {
-    const tenant = req.tenant;
-    const { storageDetails, planDetails, docsAddedThisWeek } = await require('../controllers/dashboard/getDashBoardDetails')(tenant);
-    const stats = { storageDetails, planDetails, docsAddedThisWeek };
-    return success(res, { stats }, 'Dashboard data fetched succesfully')
+router.get('/stats', verifyToken, asyncHandler(async function (req, res) {
+    const stats = await require('../controllers/dashboard/getDashBoardDetails')(req.tenant);
+
+    console.log(stats)
+    return success(res, stats, 'Dashboard data fetched successfully');
 }));
 
 router.get('/docs', verifyToken, authorize('view_document'), asyncHandler(async function _recentDocs(req, res, next) {

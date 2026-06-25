@@ -5,6 +5,7 @@ const documentSchema = require('../../models/tenant/documentSchema');
 const getTenantModel = require('../../utils/getTenantModel');
 const { STATUS_CODE, ERROR_MESSAGE } = require('../../utils/constant');
 const storageSchema = require('../../models/tenant/storageSchema');
+const apiAnalyticsSchema = require('../../models/tenant/apiAnalyticsSchema');
 
 module.exports = async function (tenant, folderId) {
     const { dbName, _id: tenantId } = tenant;
@@ -15,6 +16,7 @@ module.exports = async function (tenant, folderId) {
     const Folder = getTenantModel(dbName, "Folder", folderSchema);
     const Document = getTenantModel(dbName, "Document", documentSchema);
     const Storage = getTenantModel(dbName, "Storage", storageSchema);
+    const ApiAnalytics = getTenantModel(dbName, 'ApiAnalytics', apiAnalyticsSchema);
 
     async function deleteFolderPermanent(parentId) {
         const deletedDocs = await Document.find({ folderId: parentId, isDeleted: true, deletedByParent: true });
@@ -45,7 +47,7 @@ module.exports = async function (tenant, folderId) {
     await deleteFolderPermanent(folderId);
     await Folder.findByIdAndDelete(folderId);
 
-    await Storage.findOneAndUpdate(
+    const storage = await Storage.findOneAndUpdate(
         {
             tenantId
         },
@@ -58,6 +60,30 @@ module.exports = async function (tenant, folderId) {
                 lastStorageUpdatedAt: new Date()
             }
         },
-    )
+        {
+            new: true
+        }
+    ).lean();
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    await ApiAnalytics.findOneAndUpdate(
+        {
+            date: today
+        },
+        {
+            $set: {
+                storageUsed: storage.storageUsed
+            },
+            $setOnInsert: {
+                requests: 0
+            }
+        },
+        {
+            upsert: true,
+            new: true
+        }
+    );
 
 }
