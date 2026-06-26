@@ -5,7 +5,7 @@ const authorize = require('../middleware/authorize');
 const asyncHandler = require('../utils/asyncHandler');
 const validate = require('../middleware/validate');
 const { setPasswordValidator, inviteMemberValidator } = require('../validators/inviteMemberValidator');
-const apiResponse = require('../utils/apiResponse');
+const success = require('../utils/response');
 
 router.post('/invite', verifyToken, authorize('invite_user'), validate(inviteMemberValidator), asyncHandler(async function _inviteMember(req, res, next) {
     const invitedBy = req.user;
@@ -13,13 +13,13 @@ router.post('/invite', verifyToken, authorize('invite_user'), validate(inviteMem
     const orgName = req.tenant.orgName;
     const tenant = req.tenant;
     await require('../controllers/member/inviteMember')(invitedBy, userData, orgName, tenant);
-    return res.status(200).json(new apiResponse({}, 200, 'Invite Link Sent succesfully'));
+    return success(res, {}, 'Invite Link Sent succesfully');
 }));
 
 router.post('/set-password', validate(setPasswordValidator), asyncHandler(async function _setPassword(req, res, next) {
     const userData = req.body;
     await require('../controllers/member/setPassword')(userData);
-    return res.status(200).json({}, 200, 'Password Set');
+    return success(res, {}, 'Password Set');
 }))
 
 module.exports = router;

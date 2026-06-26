@@ -4,10 +4,10 @@ const { deleteObject } = require('../../services/s3.service');
 const getTenantModel = require('../../utils/getTenantModel');
 const { STATUS_CODE, ERROR_MESSAGE } = require('../../utils/constant');
 const storageSchema = require('../../models/tenant/storageSchema');
+const { updateApiAnalytics } = require('../../services/analyticsService');
 
 module.exports = async function (tenant, docId) {
     const { dbName, _id: tenantId } = tenant;
-    console.log(dbName)
 
     const Document = getTenantModel(dbName, 'Document', documentSchema);
     const Storage = getTenantModel(dbName, 'Storage', storageSchema);
@@ -23,7 +23,7 @@ module.exports = async function (tenant, docId) {
         throw new createHttpError(STATUS_CODE.INTERNAL_SERVER_ERROR, 'Unable to permanently delete document');
     }
 
-    await Storage.findOneAndUpdate(
+    const storage = await Storage.findOneAndUpdate(
         {
             tenantId
         },
@@ -31,14 +31,22 @@ module.exports = async function (tenant, docId) {
             $inc: {
                 storageUsed: -doc.size,
                 trashedFiles: -1
-            }
-        },
-        {
+            },
             $set: {
                 lastStorageUpdatedAt: new Date()
             }
+        },
+        {
+            new: true
         }
-    );
+    ).lean();
+
+    await updateApiAnalytics({
+        dbName,
+        set: {
+            storageUsed: storage.storageUsed
+        }
+    });
 
     return doc;
 }

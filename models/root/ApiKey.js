@@ -10,9 +10,24 @@ const apiKeySchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    hashedKey: {
+    key_hash: {
         type: String,
         required: true
+    },
+    key_suffix: {
+        type: String,
+        required: true
+    },
+    ssoSecret: {
+        iv: {
+            type: String
+        },
+        encrypted: {
+            type: String
+        },
+        tag: {
+            type: String
+        }
     },
     isActive: {
         type: Boolean,
@@ -29,13 +44,13 @@ const apiKeySchema = new mongoose.Schema({
 
 apiKeySchema.pre("save", async function () {
 
-    if (!this.isModified("key")) {
+    if (!this.isModified("key_hash")) {
         return;
     }
 
-    this.key = crypto
+    this.key_hash = crypto
         .createHash("sha256")
-        .update(this.key)
+        .update(this.key_hash)
         .digest("hex");
 });
 

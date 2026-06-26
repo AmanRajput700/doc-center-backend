@@ -4,6 +4,8 @@ const folderSchema = require('../../models/tenant/folderSchema');
 const { STATUS_CODE, ERROR_MESSAGE } = require('../../utils/constant');
 const redis = require('../../services/cache');
 const storageSchema = require('../../models/tenant/storageSchema');
+const { emitToTenant } = require('../../socket/services/emitService');
+const { DOCUMENT_UPLOADED } = require('../../socket/constants/events');
 
 
 module.exports = async function (userId, folderData, tenant) {
@@ -72,5 +74,6 @@ module.exports = async function (userId, folderData, tenant) {
         }
     );
 
+    emitToTenant(tenantId, DOCUMENT_UPLOADED);
     return folder;
 }

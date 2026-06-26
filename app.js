@@ -5,6 +5,9 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 require('./jobs/deleteS3Documents');
 require('./jobs/deleteInvitedUser');
+require('./jobs/deleteFailedDocument');
+require('./queues/workers/emailWorker');
+console.log('Email Worker Started');
 
 var indexRouter = require('./routes/index');
 
@@ -35,6 +38,7 @@ app.get('/test', (req, res, next) => {
   res.send("test");
 });
 app.use('/api/v1', indexRouter);
+app.use('/sdk',require('./routes/sdk.routes'));
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
