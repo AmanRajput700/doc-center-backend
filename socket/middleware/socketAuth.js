@@ -1,4 +1,4 @@
-const { authenticateUser } = require('../../services/authService');
+const { authenticateUser } = require('../../services/auth/authService');
 
 module.exports = async function socketAuth(socket, next) {
     try {

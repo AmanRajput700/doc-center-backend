@@ -1,12 +1,12 @@
 const jwt = require('jsonwebtoken');
 const createHttpError = require('http-errors');
 
-const Tenant = require('../models/root/Tenant');
-const userSchema = require('../models/tenant/userSchema');
-const roleSchema = require('../models/tenant/roleSchema');
+const Tenant = require('../../models/root/Tenant');
+const userSchema = require('../../models/tenant/userSchema');
+const roleSchema = require('../../models/tenant/roleSchema');
 
-const getTenantModel = require('../utils/getTenantModel');
-const { ERROR_MESSAGE, STATUS_CODE } = require('../utils/constant');
+const getTenantModel = require('../../utils/getTenantModel');
+const { ERROR_MESSAGE, STATUS_CODE } = require('../../utils/constant');
 
 async function authenticateUser(token) {
 
