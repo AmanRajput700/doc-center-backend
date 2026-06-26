@@ -6,8 +6,8 @@ module.exports = async function (tenant, queryData) {
 
     const { parentId } = queryData;
 
-    const Document = getTenantModel(tenant.dbName,'Document',documentSchema);
-    const Folder = getTenantModel(tenant.dbName,'Folder',folderSchema);
+    const Document = getTenantModel(tenant.dbName, 'Document', documentSchema);
+    const Folder = getTenantModel(tenant.dbName, 'Folder', folderSchema);
 
     const documentFilter = {
         isDeleted: false,
@@ -56,12 +56,14 @@ module.exports = async function (tenant, queryData) {
         type: 'folder',
         name: folder.name
     }));
+    console.log("🚀 ~ formattedFolders:", formattedFolders)
 
     const formattedDocuments = documents.map(document => ({
         ...document,
         type: 'document',
         name: document.originalFileName
     }));
+
 
     return [
         ...formattedFolders,

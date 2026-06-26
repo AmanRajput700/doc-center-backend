@@ -8,10 +8,19 @@ function emitToUser(userId, event, payload) {
         .emit(event, payload);
 }
 
-function emitToTenant(tenantId, event, payload) {
+async function emitToTenant(tenantId, event, payload) {
     const io = getIO();
-    io.to(getTenantRoom(tenantId))
-        .emit(event, payload);
+
+    const room = getTenantRoom(tenantId);
+
+    const sockets = await io.in(room).fetchSockets();
+
+    console.log(`Room: ${room}`);
+    console.log(`Connected clients: ${sockets.length}`);
+
+    io.to(room).emit(event, payload);
+
+    console.log(`Emitted ${event}`);
 }
 
 module.exports = {

@@ -1,5 +1,5 @@
-const getTenantModel = require('../../utils/getTenantModel');
-const apiAnalyticsSchema = require('../../models/tenant/apiAnalyticsSchema');
+const getTenantModel = require('../utils/getTenantModel');
+const apiAnalyticsSchema = require('../models/tenant/apiAnalyticsSchema');
 
 const getAnalyticsBucket = function () {
 

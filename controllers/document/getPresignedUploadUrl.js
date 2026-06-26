@@ -20,40 +20,51 @@ module.exports = async function (tenant, fileData, userId) {
     const ext = path.extname(fileName);
     const baseName = path.basename(fileName, ext);
 
-    const key = generateS3Key(tenantSlug, fileName);
-    const url = await generateUploadUrl(key, contentType);
-
-    const storedName = path.basename(key);
-
     const Document = getTenantModel(dbName, 'Document', documentSchema);
     const Storage = getTenantModel(dbName, 'Storage', storageSchema);
 
-    const storage = await Storage.findOne({ tenantId: tenant._id });
+    const storage = await Storage.findOne({ tenantId });
 
     const plan = plans[tenant.currentPlan];
+
     if ((storage.storageUsed + size) > plan.storageLimit) {
-        throw new createHttpError(STATUS_CODE.FORBIDDEN, ERROR_MESSAGE.STORAGE_EXCEED);
+        throw new createHttpError(
+            STATUS_CODE.FORBIDDEN,
+            ERROR_MESSAGE.STORAGE_EXCEED
+        );
     }
 
+    // Escape regex special characters
+    const escapedBase = baseName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const escapedExt = ext.replace('.', '\\.');
+
     const existingDocs = await Document.find({
-        originalFileName: new RegExp(`^${baseName}(_\\d+)?${ext}$`, 'i'), folderId
-    }).sort({ createdAt: -1 });
+        originalFileName: {
+            $regex: new RegExp(
+                `^${escapedBase}(?:_(\\d+))?${escapedExt}$`,
+                'i'
+            )
+        },
+        folderId
+    }).select('originalFileName');
 
     if (existingDocs.length > 0) {
-        let maxVersion = 0;
+        let maxVersion = 1;
 
-        existingDocs.forEach(doc => {
+        for (const doc of existingDocs) {
             const match = doc.originalFileName.match(/_(\d+)\.[^.]+$/);
 
             if (match) {
-                maxVersion = Math.max(maxVersion, parseInt(match[1], 10));
-            } else {
-                maxVersion = Math.max(maxVersion, 1);
+                maxVersion = Math.max(maxVersion, Number(match[1]));
             }
-        });
+        }
 
         fileName = `${baseName}_${maxVersion + 1}${ext}`;
     }
+
+    const key = generateS3Key(tenantSlug, fileName);
+    const url = await generateUploadUrl(key, contentType);
+    const storedName = path.basename(key);
 
     const document = await Document.create({
         tenantId,
@@ -68,6 +79,16 @@ module.exports = async function (tenant, fileData, userId) {
         uploadStatus: 'pending'
     });
 
-    await checkStorageThreshold({ tenant, storage, incomingSize: size, plan });
-    return { documentId: document._id, url, key };
+    await checkStorageThreshold({
+        tenant,
+        storage,
+        incomingSize: size,
+        plan
+    });
+
+    return {
+        documentId: document._id,
+        url,
+        key
+    };
 };

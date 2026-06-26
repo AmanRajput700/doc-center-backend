@@ -4,27 +4,30 @@ const userSchema = require('../../models/tenant/userSchema');
 const storageSchema = require('../../models/tenant/storageSchema');
 const apiAnalyticsSchema = require('../../models/tenant/apiAnalyticsSchema');
 const plans = require('../../config/plans');
+const { getAnalyticsBucket } = require('../../services/analyticsService');
 
 module.exports = async function (tenant) {
 
     const { dbName, _id: tenantId, currentPlan } = tenant;
 
     const Document = getTenantModel(dbName, 'Document', documentSchema);
-    const User = getTenantModel(dbName, 'User', userSchema);
     const Storage = getTenantModel(dbName, 'Storage', storageSchema);
     const ApiAnalytics = getTenantModel(dbName, 'ApiAnalytics', apiAnalyticsSchema);
-
 
     const lastSevenDays = new Date();
     lastSevenDays.setDate(lastSevenDays.getDate() - 7);
 
-    const lastThirtyDays = new Date();
-    lastThirtyDays.setHours(0, 0, 0, 0);
-    lastThirtyDays.setDate(lastThirtyDays.getDate() - 29);
+    const analyticsFrom = getAnalyticsBucket();
+
+    if (process.env.ANALYTICS_INTERVAL === 'minute') {
+        analyticsFrom.setMinutes(analyticsFrom.getMinutes() - 29);
+    } else {
+        analyticsFrom.setDate(analyticsFrom.getDate() - 29);
+    }
 
     const [storageDetails, docsAddedThisWeek, apiAnalytics] = await Promise.all([
 
-        Storage.findOne({ tenantId }),
+        Storage.findOne({ tenantId }).lean(),
 
         Document.countDocuments({
             isDeleted: false,
@@ -36,7 +39,7 @@ module.exports = async function (tenant) {
 
         ApiAnalytics.find({
             date: {
-                $gte: lastThirtyDays
+                $gte: analyticsFrom
             }
         })
             .sort({ date: 1 })
@@ -45,7 +48,7 @@ module.exports = async function (tenant) {
     ]);
 
     const totalApiRequests = apiAnalytics.reduce(
-        (total, day) => total + day.requests,
+        (total, item) => total + item.requests,
         0
     );
 
@@ -53,7 +56,6 @@ module.exports = async function (tenant) {
         storageDetails,
         planDetails: plans[currentPlan],
         docsAddedThisWeek,
-
         apiAnalytics: {
             totalRequests: totalApiRequests,
             requestsOverTime: apiAnalytics
