@@ -13,6 +13,8 @@ const apiAnalyticsSchema = require('../../models/tenant/apiAnalyticsSchema');
 
 module.exports = async function (apiKey, data) {
 
+    console.log("krish")
+
     if (apiKey !== process.env.EVENTBRIDGE_SECRET) {
         throw new createHttpError(STATUS_CODE.UNAUTHORIZED, ERROR_MESSAGE.INVALID_API_KEY);
     }

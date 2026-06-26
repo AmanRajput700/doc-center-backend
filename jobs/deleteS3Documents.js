@@ -8,6 +8,7 @@ const createHttpError = require('http-errors');
 const { STATUS_CODE, ERROR_MESSAGE } = require('../utils/constant');
 const folderSchema = require('../models/tenant/folderSchema');
 const apiAnalyticsSchema = require('../models/tenant/apiAnalyticsSchema');
+const { updateApiAnalytics } = require('../services/analyticsService');
 
 cron.schedule('0 0 16 * * *', async function () {
     try {
@@ -74,25 +75,12 @@ cron.schedule('0 0 16 * * *', async function () {
                 }).lean();
 
                 if (storage) {
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-                    await ApiAnalytics.findOneAndUpdate(
-                        {
-                            date: today
-                        },
-                        {
-                            $set: {
-                                storageUsed: storage.storageUsed
-                            },
-                            $setOnInsert: {
-                                requests: 0
-                            }
-                        },
-                        {
-                            upsert: true,
-                            new: true
+                    await updateApiAnalytics({
+                        dbName: tenant.dbName,
+                        set: {
+                            storageUsed: storage.storageUsed
                         }
-                    );
+                    });
                 }
             } catch (err) {
                 console.error(`Tenant cleanup failed: ${tenant.dbName}`, err.message);

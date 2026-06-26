@@ -6,6 +6,7 @@ const getTenantModel = require('../../utils/getTenantModel');
 const { STATUS_CODE, ERROR_MESSAGE } = require('../../utils/constant');
 const storageSchema = require('../../models/tenant/storageSchema');
 const apiAnalyticsSchema = require('../../models/tenant/apiAnalyticsSchema');
+const { updateApiAnalytics } = require('../../services/analyticsService');
 
 module.exports = async function (tenant, folderId) {
     const { dbName, _id: tenantId } = tenant;
@@ -65,25 +66,11 @@ module.exports = async function (tenant, folderId) {
         }
     ).lean();
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    await ApiAnalytics.findOneAndUpdate(
-        {
-            date: today
-        },
-        {
-            $set: {
-                storageUsed: storage.storageUsed
-            },
-            $setOnInsert: {
-                requests: 0
-            }
-        },
-        {
-            upsert: true,
-            new: true
+    await updateApiAnalytics({
+        dbName,
+        set: {
+            storageUsed: storage.storageUsed
         }
-    );
+    });
 
 }
