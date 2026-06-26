@@ -5,6 +5,7 @@ const getTenantModel = require('../../utils/getTenantModel');
 const createHttpError = require('http-errors');
 const { STATUS_CODE, ERROR_MESSAGE } = require('../../utils/constant');
 const tokenGenrator = require('../../utils/tokenGenrator');
+const { createSession } = require('../../services/auth/sessionService');
 
 module.exports = async function ({ apiKey, token }) {
 
@@ -17,5 +18,13 @@ module.exports = async function ({ apiKey, token }) {
     if (!user) throw new createHttpError(STATUS_CODE.UNAUTHORIZED, ERROR_MESSAGE.INVALID_API_KEY);
 
     const { refreshToken, accessToken } = await tokenGenrator(User, user._id, tenantApiKey);
+
+    await createSession({
+        dbName: tenantApiKey.tenantId.dbName,
+        userId: user._id,
+        platform: 'sdk',
+        refreshToken
+    });
+
     return { refreshToken, accessToken };
 }

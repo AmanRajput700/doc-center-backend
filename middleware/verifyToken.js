@@ -1,7 +1,7 @@
 const asyncHandler = require('../utils/asyncHandler');
 const createHttpError = require('http-errors');
 
-const { authenticateUser } = require('../services/authService');
+const { authenticateUser } = require('../services/auth/authService');
 
 module.exports = asyncHandler(async function (req, res, next) {
 

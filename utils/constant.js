@@ -3,7 +3,7 @@ const ERROR_MESSAGE = {
 
   TENANT_ALREADY_EXISTS: 'A tenant with the provided details already exists.',
   TENANT_NOT_FOUND: 'Tenant not found.',
-  INVALID_SLUG: 'Tenant already exists with same slug.',
+  INVALID_SLUG: 'Invalid Slug',
   INVALID_ORGNAME: 'Tenant already exists with same orgName.',
   INVALID_OTP: 'The provided otp is invalid.',
   INVALID_API_KEY: 'Invalid API Key',

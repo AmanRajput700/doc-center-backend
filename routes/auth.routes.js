@@ -107,12 +107,18 @@ router.get('/validate-secure-token',
 
 router.post('/logout',
     verifyToken,
-    asyncHandler(async function _logout(req, res, next) {
-        const userId = req.user._id;
-        const tenant = req.tenant;
-        await require('../controllers/auth/logout.js')(userId, tenant.dbName);
+    asyncHandler(async function (req, res) {
+        await require('../controllers/auth/logout')(req.tenant.dbName, req.body.refreshToken);
         return success(res, {}, 'User logout successfully');
     })
 );
+
+// router.get('/:slug',
+//     asyncHandler(async function _verifyTenantSlug(req, res, next) {
+//         const slug = req.params.slug;
+//         const verifiedTenant = await require('../controllers/auth/verifyTenantSlug.js')(slug);
+//         return res.status(200).json(new apiResponse({ verifiedTenant }, 200, 'Tenant Slug verified succesfully'));
+//     })
+// );
 
 module.exports = router;

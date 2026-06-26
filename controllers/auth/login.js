@@ -8,6 +8,7 @@ const tokenGenrator = require('../../utils/tokenGenrator');
 const jwt = require('jsonwebtoken');
 const TIME = require('../../utils/times');
 const roleSchema = require('../../models/tenant/roleSchema');
+const { createSession } = require('../../services/auth/sessionService');
 
 module.exports = async function (userData) {
     const { email, password, slug } = userData;
@@ -34,10 +35,18 @@ module.exports = async function (userData) {
         throw new createHttpError(STATUS_CODE.UNAUTHORIZED, user.failedLogInAttempts >= TIME.MAX_LOGIN_ATTEMPTS ? 'User account locked for 24 hours' : `Invalid credentials Attempts Left ${TIME.MAX_LOGIN_ATTEMPTS - user.failedLogInAttempts}`);
     }
     const { refreshToken, accessToken } = await tokenGenrator(User, user._id, mapping);
+
+    await createSession({
+        dbName: mapping.tenantId.dbName,
+        userId: user._id,
+        platform: 'web',
+        refreshToken
+    });
+
     user.failedLogInAttempts = 0;
     user.lockUntil = undefined;
     user.lastLogin = Date.now();
     await user.save();
     user.password = undefined;
-    return {  refreshToken, accessToken };
+    return { refreshToken, accessToken };
 }
