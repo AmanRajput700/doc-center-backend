@@ -1,37 +1,29 @@
-const getTenantModel = require('../utils/getTenantModel');
-const apiAnalyticsSchema = require('../models/tenant/apiAnalyticsSchema');
+const { updateApiAnalytics } = require('../services/analyticsService');
 
 module.exports = function (req, res, next) {
 
     res.on('finish', async () => {
-
         try {
-            if (res.statusCode >= 400) return;
 
-            const ApiAnalytics = getTenantModel(req.tenant.dbName, 'ApiAnalytics', apiAnalyticsSchema);
+            if (res.statusCode >= 400) {
+                return;
+            }
 
-            // Today's date (00:00:00)
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
+            if (!req.tenant?.dbName) {
+                return;
+            }
 
-            await ApiAnalytics.findOneAndUpdate(
-                {
-                    date: today
-                },
-                {
-                    $inc: {
-                        requests: 1
-                    }
-                },
-                {
-                    upsert: true,
-                    new: true
+            await updateApiAnalytics({
+                dbName: req.tenant.dbName,
+                inc: {
+                    requests: 1
                 }
-            );
+            });
 
-        } catch (err) {
-            console.error('API Analytics:', err.message);
+        } catch (error) {
+            console.error('API Analytics:', error.message);
         }
     });
+
     next();
 };

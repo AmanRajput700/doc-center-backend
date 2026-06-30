@@ -106,9 +106,8 @@ router.get('/validate-secure-token',
 // }));
 
 router.post('/logout',
-    verifyToken,
     asyncHandler(async function (req, res) {
-        await require('../controllers/auth/logout')(req.tenant.dbName, req.body.refreshToken);
+        await require('../controllers/auth/logout')(req.body.refreshToken);
         return success(res, {}, 'User logout successfully');
     })
 );

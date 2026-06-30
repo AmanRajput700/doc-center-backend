@@ -10,10 +10,10 @@ const { createNotification } = require('../../services/notificationService');
 const { emitToUser, emitToTenant } = require('../../socket/services/emitService');
 const { DOCUMENT_UPLOADED } = require('../../socket/constants/events');
 const apiAnalyticsSchema = require('../../models/tenant/apiAnalyticsSchema');
+const { updateApiAnalytics } = require('../../services/analyticsService');
 
 module.exports = async function (apiKey, data) {
 
-    console.log("krish")
 
     if (apiKey !== process.env.EVENTBRIDGE_SECRET) {
         throw new createHttpError(STATUS_CODE.UNAUTHORIZED, ERROR_MESSAGE.INVALID_API_KEY);
@@ -66,23 +66,12 @@ module.exports = async function (apiKey, data) {
         }
     );
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    await ApiAnalytics.findOneAndUpdate(
-        {
-            date: today
-        },
-        {
-            $set: {
-                storageUsed: storage.storageUsed
-            }
-        },
-        {
-            upsert: true,
-            new: true
+    await updateApiAnalytics({
+        dbName: tenant.dbName,
+        set: {
+            storageUsed: storage.storageUsed
         }
-    );
+    });
 
     const preference = await NotificationPreference.findOne({
         userId: document.uploadedBy._id,
