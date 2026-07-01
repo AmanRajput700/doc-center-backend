@@ -3,12 +3,14 @@ const ERROR_MESSAGE = {
 
   TENANT_ALREADY_EXISTS: 'A tenant with the provided details already exists.',
   TENANT_NOT_FOUND: 'Tenant not found.',
-  INVALID_SLUG: 'The provided slug is invalid.',
-  INVALID_ORGNAME: 'The provided organization name is invalid.',
+  INVALID_SLUG: 'Invalid Slug',
+  INVALID_ORGNAME: 'Tenant already exists with same orgName.',
   INVALID_OTP: 'The provided otp is invalid.',
+  INVALID_API_KEY: 'Invalid API Key',
+  INVALID_SSO_TOKEN: 'Invalid SSO token',
 
   USER_NOT_FOUND: 'User not found.',
-  USER_ALREADY_EXISTS: 'A user with the provided details already exists.',
+  USER_ALREADY_EXISTS: 'A user with the provided email already exists.',
   INVALID_USER: 'The specified user is invalid.',
   USER_NOT_ALLOWED: 'You are not allowed to access this resource.',
 
@@ -18,7 +20,37 @@ const ERROR_MESSAGE = {
   TOO_MANY_OTP_ATTEMPTS: 'Too many incorrect OTP attempts. Please resend Otp',
   OTP_RESEND_LIMIT: "Cooldown period for otp resend",
 
-  EMAIL_INVALID: 'The provided email address is invalid.'
+  EMAIL_INVALID: 'The provided email address is invalid.',
+  EMAIL_SEND_FAILED: 'Sending Email Failed',
+
+  INVITE_ALREADY_SENT: 'Invite has been already sent on this email',
+
+  DOC_NOT_FOUND: 'Document not found',
+  FOLDER_NOT_FOUND: 'Folder Not found',
+
+
+  ROLE_ALREADY_EXISTS: 'Role Already exists',
+  ROLE_NOT_FOUND: 'Role Not Found',
+
+  PERMISSION_NOT_FOUND: 'Permission ID not found',
+
+
+  SLUG_NOT_FOUND: 'Slug Not Found',
+  EMAIL_ALREAY_EXISTS: 'Email Already Exists',
+
+
+  API_KEY_NOT_FOUND: 'API Key not found',
+  API_KEY_MISSING: 'API key missing',
+
+
+  STORAGE_NOT_FOUND: 'Storage not found',
+  STORAGE_EXCEED: 'Storage limit exceed',
+  USER_LIMIT_EXCEED: 'User limit exceed',
+
+  OTP_EXPIRED: 'OTP expired',
+
+  SSO_TOKEN_REQUIRED: 'SSO token is required',
+
 };
 
 const STATUS_CODE = Object.freeze({
@@ -43,10 +75,18 @@ const STATUS_CODE = Object.freeze({
   INTERNAL_SERVER_ERROR: 500,
   BAD_GATEWAY: 502,
   SERVICE_UNAVAILABLE: 503,
-  GATEWAY_TIMEOUT: 504
+  GATEWAY_TIMEOUT: 504,
 
 });
 
+const STORAGE_LIMIT = {
+  WARNING: 80,
+  CRITICAL: 90,
+  FULL: 100
+};
+
 module.exports = {
-  STATUS_CODE, ERROR_MESSAGE
+  STATUS_CODE,
+  ERROR_MESSAGE,
+  STORAGE_LIMIT
 }

@@ -1,0 +1,57 @@
+const mongoose = require('mongoose');
+const crypto = require("crypto");
+
+const apiKeySchema = new mongoose.Schema({
+    tenantId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Tenant'
+    },
+    name: {
+        type: String,
+        required: true
+    },
+    key_hash: {
+        type: String,
+        required: true
+    },
+    key_suffix: {
+        type: String,
+        required: true
+    },
+    ssoSecret: {
+        iv: {
+            type: String
+        },
+        encrypted: {
+            type: String
+        },
+        tag: {
+            type: String
+        }
+    },
+    isActive: {
+        type: Boolean,
+        default: true
+    },
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
+    lastUsedAt: {
+        type: Date
+    }
+}, { timestamps: true });
+
+apiKeySchema.pre("save", async function () {
+
+    if (!this.isModified("key_hash")) {
+        return;
+    }
+
+    this.key_hash = crypto
+        .createHash("sha256")
+        .update(this.key_hash)
+        .digest("hex");
+});
+
+module.exports = mongoose.model('ApiKey', apiKeySchema);

@@ -54,6 +54,50 @@ const registerTenantValidator = [
         .normalizeEmail()
 ];
 
+const resendEmailValidator = [
+    body('token')
+        .trim()
+        .notEmpty()
+        .withMessage('Organization name is required')
+];
+
+const generatePreSignedUrlForLogoValidator = [
+    body('slug')
+        .exists()
+        .withMessage('Slug is required')
+        .bail()
+        .isString()
+        .withMessage('Slug must be a string')
+        .bail()
+        .trim()
+        .notEmpty()
+        .withMessage('Slug cannot be empty'),
+
+    body('fileName')
+        .exists()
+        .withMessage('File name is required')
+        .bail()
+        .isString()
+        .withMessage('File name must be a string')
+        .bail()
+        .trim()
+        .notEmpty()
+        .withMessage('File name cannot be empty'),
+
+    body('contentType')
+        .exists()
+        .withMessage('Content type is required')
+        .bail()
+        .isString()
+        .withMessage('Content type must be a string')
+        .bail()
+        .trim()
+        .notEmpty()
+        .withMessage('Content type cannot be empty')
+]
+
 module.exports = {
-    registerTenantValidator
+    registerTenantValidator,
+    resendEmailValidator,
+    generatePreSignedUrlForLogoValidator
 }

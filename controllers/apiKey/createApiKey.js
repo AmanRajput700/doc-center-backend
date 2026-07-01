@@ -1,0 +1,34 @@
+const ApiKey = require('../../models/root/ApiKey');
+const getTenantModel = require('../../utils/getTenantModel');
+const userSchema = require('../../models/tenant/userSchema');
+const generateApiKey = require('../../utils/generateApiKey');
+const createHttpError = require('http-errors');
+const { STATUS_CODE, ERROR_MESSAGE } = require('../../utils/constant');
+const generateSsoSecret = require('../../utils/generateSsoSecret');
+const { encrypt } = require('../../utils/encryption');
+
+module.exports = async function (apiData, tenant, userId) {
+    const { name } = apiData;
+    const { _id, dbName } = tenant;
+    const rawApiKey = generateApiKey();
+    const rawSsoSecret = generateSsoSecret();
+    const encryptedSsoSecret = encrypt(rawSsoSecret);
+    const User = getTenantModel(dbName, 'User', userSchema);
+
+    const api = await ApiKey.findOne({ tenantId: _id, name });
+    if (api) throw new createHttpError(STATUS_CODE.CONFLICT, 'API KEY exists with same name');
+
+    const user = await User.findById(userId).populate("role", "name");
+    if (!user || !user.role || user.role.name !== 'Admin') throw new createHttpError(STATUS_CODE.FORBIDDEN, 'User not allowed to generate API key');
+
+    await ApiKey.create({
+        tenantId: _id,
+        name,
+        key_hash: rawApiKey,
+        key_suffix: rawApiKey.slice(-4),
+        ssoSecret: encryptedSsoSecret,
+        createdBy: userId
+    });
+
+    return { rawApiKey, rawSsoSecret };
+}

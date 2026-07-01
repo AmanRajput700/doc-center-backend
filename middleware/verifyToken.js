@@ -1,44 +1,31 @@
 const asyncHandler = require('../utils/asyncHandler');
 const createHttpError = require('http-errors');
-const jwt = require('jsonwebtoken');
-const {ERROR_MESSAGE,STATUS_CODE} = require('../utils/constant');
-const userSchema = require('../models/tenant/userSchema');
-const mongoose = require('mongoose');
-const Tenant = require('../models/root/Tenant');
+
+const { authenticateUser } = require('../services/auth/authService');
 
 module.exports = asyncHandler(async function (req, res, next) {
-    const authHeader = req.headers.authorization;
 
-    const token = authHeader?.startsWith('Bearer ')
-        ? authHeader.split(' ')[1]
-        : null;
+    let token = null;
 
-    if (!token) throw new createHttpError(STATUS_CODE.UNAUTHORIZED, ERROR_MESSAGE.INVALID_USER);
-    let decoded;
-    try {
-        decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    } catch (err) {
-        if (err.name === 'TokenExpiredError') {
-            throw new createHttpError(
-                STATUS_CODE.UNAUTHORIZED,
-                'Access token expired'
-            );
-        }
-        throw new createHttpError(STATUS_CODE.UNAUTHORIZED, ERROR_MESSAGE.INVALID_USER);
+    if (req.headers.authorization?.startsWith('Bearer ')) {
+        token = req.headers.authorization.split(' ')[1];
+    } else if (req.cookies?.accessToken) {
+        token = req.cookies.accessToken;
     }
-    console.log(decoded);
-    const tenant = await Tenant.findById(decoded.tenantId);
-    if (!tenant) throw new createHttpError(STATUS_CODE.UNAUTHORIZED, ERROR_MESSAGE.INVALID_USER);
 
-    const tenantDB = mongoose.connection.useDb(tenant.dbName);
+    const { user, tenant } =await authenticateUser(token);
 
-    const User = tenantDB.models.User || tenantDB.model('User', userSchema);
+    const now = Date.now();
+    const lastActive =new Date(user.lastActivateAt).getTime();
+    const difference = now - lastActive;
 
-    const user = await User.findById(decoded._id).select('-password -refreshToken');;
+    if (difference > 1000 * 60 * 5 ||user.lastActivateAt === undefined) {
+        user.lastActivateAt = new Date();
+        await user.save({validateBeforeSave: false});
+    }
 
-    if (!user) throw new createHttpError(STATUS_CODE.UNAUTHORIZED, ERROR_MESSAGE.INVALID_USER);
     req.user = user;
-    req.tenantDB = tenantDB;
+    req.tenant = tenant;
 
     next();
 });

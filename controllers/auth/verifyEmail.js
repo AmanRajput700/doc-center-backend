@@ -7,6 +7,5 @@ module.exports = async function (email) {
     const tenant = await TenantUserMap.findOne({ email }).populate("tenantId", "slug");
     if (!tenant) throw new createHttpError(STATUS_CODE.NOT_FOUND, ERROR_MESSAGE.USER_NOT_FOUND);
 
-    const emailVerifyToken = jwt.sign({ email, slug: tenant.tenantId.slug }, process.env.JWT_EMAIL_VERIFY_SECRET, { expiresIn: process.env.JWT_EMAIL_VERIFY_EXPIRY || '5m' });
-    return { slug: tenant.tenantId.slug, emailVerifyToken };
+    return { slug: tenant.tenantId.slug };
 };

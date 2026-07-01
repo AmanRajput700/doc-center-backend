@@ -5,6 +5,11 @@ const crypto = require('node:crypto');
 const userSchema = require('../../models/tenant/userSchema');
 const mongoose = require('mongoose');
 const TenantUserMap = require('../../models/root/TenantUserMap');
+const permissionSeeder = require('../../seeders/tenant/permissionSeeder');
+const roleSeeder = require('../../seeders/tenant/roleSeeder');
+const getTenantModel = require('../../utils/getTenantModel');
+const storageSchema = require('../../models/tenant/storageSchema');
+const notificationPreferenceSeeder = require('../../seeders/tenant/notificationPrefrenceSeeder');
 
 module.exports = async function (userData) {
     const { password, confirmPassword, token } = userData;
@@ -12,18 +17,24 @@ module.exports = async function (userData) {
     const hashedSetPasswordToken = crypto.createHash('sha256').update(token).digest('hex');
 
     const tenant = await Tenant.findOne({ setPasswordToken: hashedSetPasswordToken, setPasswordExpiry: { $gt: Date.now() } });
-    if (!tenant) throw new createHttpError(STATUS_CODE.UNAUTHORIZED, ERROR_MESSAGE.INVALID_CREDENTIALS);
+    if (!tenant) throw new createHttpError(STATUS_CODE.BAD_REQUEST, "Password already set ");
 
     const tenantDB = mongoose.connection.useDb(tenant.dbName);
-    const User = tenantDB.models.User || tenantDB.model('User', userSchema);
-    await User.create({
+    const User = getTenantModel(tenant.dbName, 'User', userSchema);
+    const Storage = getTenantModel(tenant.dbName, 'Storage', storageSchema);
+    await permissionSeeder(tenantDB);
+    const role = await roleSeeder(tenantDB);
+    await Storage.create({ tenantId: tenant._id });
+    const user = await User.create({
         firstName: tenant.applicant.firstName,
         lastName: tenant.applicant.lastName,
         email: tenant.applicant.email,
         password,
-        role: 'Admin',
+        role: role._id,
         status: 'active',
     });
+
+    await notificationPreferenceSeeder(tenant.dbName, user._id, tenant._id);
 
     await TenantUserMap.create({
         email: tenant.applicant.email,

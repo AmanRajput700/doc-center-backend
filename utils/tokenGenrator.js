@@ -1,14 +1,15 @@
 const createHttpError = require('http-errors');
 
-module.exports = async (User, userId, mapping) => {
+module.exports = async function (User, userId, mapping) {
     try {
         const user = await User.findById(userId);
-        const refreshToken = await user.generateRefreshToken();
-        const accessToken = await user.generateAccessToken(mapping);
-        user.refreshToken = refreshToken;
-        await user.save({ validateBeforeSave: false });
+        if (!user) throw new createHttpError(404, 'User not found');
+
+        const refreshToken = user.generateRefreshToken();
+        const accessToken = user.generateAccessToken(mapping);
+
         return { accessToken, refreshToken };
-    } catch (err) {
-        throw new createHttpError(err);
+    } catch (error) {
+        throw new createHttpError(error);
     }
-}
+};

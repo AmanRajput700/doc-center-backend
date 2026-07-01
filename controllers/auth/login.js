@@ -2,22 +2,22 @@ const TenantUserMap = require('../../models/root/TenantUserMap');
 const createHttpError = require('http-errors');
 const { ERROR_MESSAGE, STATUS_CODE } = require('../../utils/constant');
 const Tenant = require('../../models/root/Tenant');
-const mongoose = require('mongoose');
+const getTenantModel = require('../../utils/getTenantModel');
 const userSchema = require('../../models/tenant/userSchema');
 const tokenGenrator = require('../../utils/tokenGenrator');
 const jwt = require('jsonwebtoken');
 const TIME = require('../../utils/times');
+const roleSchema = require('../../models/tenant/roleSchema');
+const { createSession } = require('../../services/auth/sessionService');
 
 module.exports = async function (userData) {
-    const { emailVerifyToken, password, slug } = userData;
-    const decoded = jwt.verify(emailVerifyToken, process.env.JWT_EMAIL_VERIFY_SECRET);
-    const email = decoded.email;
+    const { email, password, slug } = userData;
     const mapping = await TenantUserMap.findOne({ email }).populate("tenantId", "slug dbName");
     if (!mapping || mapping.tenantId.slug !== slug) throw new createHttpError(STATUS_CODE.NOT_FOUND, ERROR_MESSAGE.USER_NOT_FOUND);
 
-    const tenantDB = mongoose.connection.useDb(mapping.tenantId.dbName);
-    const User = tenantDB.models.User || tenantDB.model('User', userSchema);
-    const user = await User.findOne({ email }).select("+password");
+    const Role = getTenantModel(mapping.tenantId.dbName, 'Role', roleSchema);
+    const User = getTenantModel(mapping.tenantId.dbName, 'User', userSchema);
+    const user = await User.findOne({ email }).populate('role', 'name').select("+password");
     if (!user) throw new createHttpError(STATUS_CODE.NOT_FOUND, ERROR_MESSAGE.USER_NOT_FOUND);
 
     if (user.lockUntil && user.lockUntil > Date.now()) {
@@ -35,9 +35,18 @@ module.exports = async function (userData) {
         throw new createHttpError(STATUS_CODE.UNAUTHORIZED, user.failedLogInAttempts >= TIME.MAX_LOGIN_ATTEMPTS ? 'User account locked for 24 hours' : `Invalid credentials Attempts Left ${TIME.MAX_LOGIN_ATTEMPTS - user.failedLogInAttempts}`);
     }
     const { refreshToken, accessToken } = await tokenGenrator(User, user._id, mapping);
+
+    await createSession({
+        dbName: mapping.tenantId.dbName,
+        userId: user._id,
+        platform: 'web',
+        refreshToken
+    });
+
     user.failedLogInAttempts = 0;
     user.lockUntil = undefined;
+    user.lastLogin = Date.now();
     await user.save();
     user.password = undefined;
-    return { user, slug: mapping.tenantId.slug, refreshToken, accessToken };
+    return { refreshToken, accessToken };
 }
