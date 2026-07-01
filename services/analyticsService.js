@@ -1,7 +1,7 @@
 const getTenantModel = require('../utils/getTenantModel');
 const apiAnalyticsSchema = require('../models/tenant/apiAnalyticsSchema');
 
-const getAnalyticsBucket = function () {
+function getAnalyticsBucket() {
 
     const date = new Date();
 
@@ -16,14 +16,13 @@ const getAnalyticsBucket = function () {
 
 const updateApiAnalytics = async function ({ dbName, inc = {}, set = {} }) {
 
-    const ApiAnalytics = getTenantModel(dbName, 'ApiAnalytics', apiAnalyticsSchema);
+    const ApiAnalytics = getTenantModel(
+        dbName,
+        'ApiAnalytics',
+        apiAnalyticsSchema
+    );
 
-    const update = {
-        $setOnInsert: {
-            requests: 0,
-            storageUsed: 0
-        }
-    };
+    const update = {};
 
     if (Object.keys(inc).length) {
         update.$inc = inc;
@@ -31,6 +30,16 @@ const updateApiAnalytics = async function ({ dbName, inc = {}, set = {} }) {
 
     if (Object.keys(set).length) {
         update.$set = set;
+    }
+
+    update.$setOnInsert = {};
+
+    if (!update.$inc?.requests) {
+        update.$setOnInsert.requests = 0;
+    }
+
+    if (!update.$set?.storageUsed) {
+        update.$setOnInsert.storageUsed = 0;
     }
 
     await ApiAnalytics.findOneAndUpdate(
@@ -48,4 +57,4 @@ const updateApiAnalytics = async function ({ dbName, inc = {}, set = {} }) {
 module.exports = {
     updateApiAnalytics,
     getAnalyticsBucket
-}
+};

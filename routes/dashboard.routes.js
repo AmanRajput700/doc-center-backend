@@ -9,7 +9,6 @@ const router = express.Router();
 router.get('/stats', verifyToken, asyncHandler(async function (req, res) {
     const stats = await require('../controllers/dashboard/getDashBoardDetails')(req.tenant);
 
-    console.log(stats)
     return success(res, stats, 'Dashboard data fetched successfully');
 }));
 

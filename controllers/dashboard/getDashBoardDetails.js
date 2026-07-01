@@ -25,7 +25,7 @@ module.exports = async function (tenant) {
         analyticsFrom.setDate(analyticsFrom.getDate() - 29);
     }
 
-    const [storageDetails, docsAddedThisWeek, apiAnalytics] = await Promise.all([
+    const [storageDetails, docsAddedThisWeek] = await Promise.all([
 
         Storage.findOne({ tenantId }).lean(),
 
@@ -35,17 +35,16 @@ module.exports = async function (tenant) {
             createdAt: {
                 $gte: lastSevenDays
             }
-        }),
-
-        ApiAnalytics.find({
-            date: {
-                $gte: analyticsFrom
-            }
         })
-            .sort({ date: 1 })
-            .lean()
-
     ]);
+
+    const apiAnalytics = await ApiAnalytics.find({})
+        .sort({ date: -1 })
+        .limit(30)
+        .lean();
+
+    apiAnalytics.reverse();
+
 
     const totalApiRequests = apiAnalytics.reduce(
         (total, item) => total + item.requests,

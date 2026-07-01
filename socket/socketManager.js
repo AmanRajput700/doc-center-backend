@@ -7,6 +7,7 @@ module.exports = function socketManager(io) {
 
     io.on('connection', (socket) => {
 
+        console.log("Client connected",socket.id);
         const userRoom = joinUserRoom(socket);
         const tenantRoom = joinTenantRoom(socket);
 
