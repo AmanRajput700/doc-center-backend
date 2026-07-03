@@ -12,7 +12,7 @@ module.exports = async function (docId, tenant) {
 
     const restoredDocs = await Document.findOneAndUpdate(
         {
-            docId,
+            _id: docId,
             isDeleted: true
         },
         {
