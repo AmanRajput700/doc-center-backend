@@ -15,21 +15,22 @@ module.exports = function (err, req, res, next) {
         userId: req.user?._id
     };
 
-    if (statusCode >= 500) {
+    // Log only in development
+    if (process.env.NODE_ENV === 'development') {
 
-        logger.error({
-            action: 'UNHANDLED_ERROR',
-            ...logData,
-            stack: err.stack
-        });
-
-    } else {
-
-        logger.warn({
-            action: 'HANDLED_ERROR',
-            ...logData,
-            stack: err.stack
-        });
+        if (statusCode >= 500) {
+            logger.error({
+                action: 'UNHANDLED_ERROR',
+                ...logData,
+                stack: err.stack
+            });
+        } else {
+            logger.warn({
+                action: 'HANDLED_ERROR',
+                ...logData,
+                stack: err.stack
+            });
+        }
 
     }
 

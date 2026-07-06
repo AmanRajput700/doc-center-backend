@@ -13,23 +13,25 @@ const validate = validations => {
 
       if (!errors.isEmpty()) {
 
-         logger.warn({
-            action: 'VALIDATION_FAILED',
-            statusCode: 422,
-            message: 'Validation failed',
+         if (process.env.NODE_ENV === 'development') {
+            logger.warn({
+               action: 'VALIDATION_FAILED',
+               statusCode: 422,
+               message: 'Validation failed',
 
-            method: req.method,
-            url: req.originalUrl,
-            ip: req.ip,
-            userAgent: req.get('user-agent'),
+               method: req.method,
+               url: req.originalUrl,
+               ip: req.ip,
+               userAgent: req.get('user-agent'),
 
-            tenantId: req.tenant?._id,
-            userId: req.user?._id,
+               tenantId: req.tenant?._id,
+               userId: req.user?._id,
 
-            validationErrors: errors.array(),
+               validationErrors: errors.array(),
 
-            stack: new Error('Validation failed').stack
-         });
+               stack: new Error('Validation failed').stack
+            });
+         }
 
          return res.status(422).json({
             success: false,
