@@ -34,11 +34,17 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.get('/test', (req, res, next) => {
-  res.send("test");
+// Health Check
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: "UP",
+    message: "Server is running",
+    timestamp: new Date().toISOString()
+  });
 });
+
 app.use('/api/v1', indexRouter);
-app.use('/sdk',require('./routes/sdk.routes'));
+app.use('/sdk', require('./routes/sdk.routes'));
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
