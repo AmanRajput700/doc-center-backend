@@ -23,11 +23,17 @@ module.exports = async function (tenant, fileData, userId) {
     const Document = getTenantModel(dbName, 'Document', documentSchema);
     const Storage = getTenantModel(dbName, 'Storage', storageSchema);
 
-    const storage = await Storage.findOne({ tenantId });
+    const pendingDocs = await Document.aggregate([
+        { $match: { tenantId, uploadStatus: 'pending' } },
+        { $group: { _id: null, totalSize: { $sum: '$size' } } }
+    ]);
+    const pendingSize = pendingDocs.length > 0 ? pendingDocs[0].totalSize : 0;
+
+    const storage = await Storage.findOne({ tenantId }) || { storageUsed: 0 };
 
     const plan = plans[tenant.currentPlan];
 
-    if ((storage.storageUsed + size) > plan.storageLimit) {
+    if ((storage.storageUsed + pendingSize + size) > plan.storageLimit) {
         throw new createHttpError(
             STATUS_CODE.FORBIDDEN,
             ERROR_MESSAGE.STORAGE_EXCEED
@@ -82,7 +88,7 @@ module.exports = async function (tenant, fileData, userId) {
     await checkStorageThreshold({
         tenant,
         storage,
-        incomingSize: size,
+        incomingSize: pendingSize + size,
         plan
     });
 

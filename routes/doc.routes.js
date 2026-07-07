@@ -80,6 +80,12 @@ router.delete('/:id/folder', verifyToken, authorize('delete_document'), validate
     return success(res, { deletedFolder }, 'Folder Deleted Succesfully');
 }));
 
+router.delete('/recycle-bin/empty', verifyToken, authorize('delete_document'), asyncHandler(async function _emptyRecycleBin(req, res, next) {
+    const tenant = req.tenant;
+    await require('../controllers/document/emptyRecycleBin')(tenant);
+    return success(res, {}, "Recycle bin emptied successfully");
+}));
+
 router.delete('/recycle-bin/documents/:id', verifyToken, authorize('delete_document'), asyncHandler(async function _deleteDocumentFromRecycleBin(req, res, next) {
     const tenant = req.tenant;
     const docId = req.params.id;
