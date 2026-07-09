@@ -33,14 +33,16 @@ app.use(
         return callback(null, true);
       }
 
-      // Allow any HTTPS subdomain of doccenter.in
-      const allowedRegex = /^https:\/\/([a-zA-Z0-9-]+)\.doccenter\.in$/;
+      // Allow doccenter.in and any HTTPS subdomain
+      const allowedRegex = /^https:\/\/(?:[a-zA-Z0-9-]+\.)?doccenter\.in$/;
 
       if (allowedRegex.test(origin)) {
         return callback(null, true);
       }
 
-      return callback(new Error("Not allowed by CORS"));
+      // Instead of throwing an error (which causes a 500 status), return false
+      // to let the cors middleware handle the rejection properly.
+      return callback(null, false);
     },
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     credentials: true,
