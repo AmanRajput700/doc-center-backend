@@ -22,9 +22,28 @@ app.set('view engine', 'ejs');
 
 app.use(
   cors({
-    origin: /^http:\/\/([a-zA-Z0-9-]+)\.192\.168\.100\.99\.nip\.io:5173$/,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    credentials: true
+    origin: (origin, callback) => {
+      // Allow requests without Origin (Postman, mobile apps, health checks)
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      // Allow localhost during development
+      if (origin === "http://localhost:5173") {
+        return callback(null, true);
+      }
+
+      // Allow any HTTPS subdomain of doccenter.in
+      const allowedRegex = /^https:\/\/([a-zA-Z0-9-]+)\.doccenter\.in$/;
+
+      if (allowedRegex.test(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    credentials: true,
   })
 );
 app.options('*', cors());
