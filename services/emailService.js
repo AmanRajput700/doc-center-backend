@@ -1,7 +1,7 @@
 const nodemailer = require("nodemailer");
 
 module.exports = nodemailer.createTransport({
-    host: "smtp.ionos.com",
+    host: "smtp.gmail.com",
     port: 587,
     secure: false,
     auth: {
