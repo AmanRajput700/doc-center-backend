@@ -38,7 +38,9 @@ module.exports = async function (tenant) {
         })
     ]);
 
-    const apiAnalytics = await ApiAnalytics.find({})
+    const apiAnalytics = await ApiAnalytics.find({
+        date: { $gte: analyticsFrom }
+    })
         .sort({ date: -1 })
         .limit(30)
         .lean();
@@ -52,7 +54,12 @@ module.exports = async function (tenant) {
     );
 
     return {
-        storageDetails,
+        storageDetails: storageDetails || {
+            storageUsed: 0,
+            totalFiles: 0,
+            totalFolders: 0,
+            trashedFiles: 0
+        },
         planDetails: plans[currentPlan],
         docsAddedThisWeek,
         apiAnalytics: {
