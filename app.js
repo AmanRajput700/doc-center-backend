@@ -57,7 +57,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.get('/health', (req, res) => {
   res.status(200).json({
     status: "UP",
-    message: "Server is running",
+    message: "Server is running V2",
     timestamp: new Date().toISOString()
   });
 });
