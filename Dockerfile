@@ -5,7 +5,7 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm ci --omit=dev --ignore-scripts
+RUN npm pkg delete scripts.prepare && npm ci --omit=dev
 
 
 # ---------- Stage 2: Production Image ----------
