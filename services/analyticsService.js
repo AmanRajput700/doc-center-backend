@@ -38,7 +38,7 @@ const updateApiAnalytics = async function ({ dbName, inc = {}, set = {} }) {
         update.$setOnInsert.requests = 0;
     }
 
-    if (!update.$set?.storageUsed) {
+    if (update.$set?.storageUsed === undefined) {
         update.$setOnInsert.storageUsed = 0;
     }
 
