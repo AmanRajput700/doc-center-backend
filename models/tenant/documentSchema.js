@@ -58,6 +58,20 @@ const documentSchema = new mongoose.Schema({
         type: String,
         enum: ['pending', 'uploaded', 'failed'],
         default: 'pending'
+    },
+    multipartUpload: {
+        uploadId: String,
+
+        uploadedParts: {
+            type: [Number],
+            default: []
+        },
+
+        chunkSize: Number,
+
+        totalParts: Number,
+
+        initiatedAt: Date
     }
 }, { timestamps: true });
 

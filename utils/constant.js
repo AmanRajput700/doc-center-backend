@@ -82,7 +82,7 @@ const STATUS_CODE = Object.freeze({
 const STORAGE_LIMIT = {
   WARNING: 80,
   CRITICAL: 90,
-  FULL: 100
+  FULL: 100,
 };
 
 module.exports = {

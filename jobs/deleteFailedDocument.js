@@ -4,7 +4,7 @@ const documentSchema = require('../models/tenant/documentSchema');
 const Tenant = require('../models/root/Tenant');
 const logger = require('../config/logger');
 
-const UPLOAD_TIMEOUT_MINUTES = 15;
+const UPLOAD_TIMEOUT_MINUTES = 3600;
 
 cron.schedule('*/5 * * * *', async function () {
     try {

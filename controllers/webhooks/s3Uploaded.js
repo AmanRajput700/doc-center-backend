@@ -31,20 +31,11 @@ module.exports = async function (apiKey, data) {
 
     const { document, storage } = await withTransaction(async (session) => {
 
-        const uploadedDocument = await Document.findOneAndUpdate(
+        const uploadedDocument = await Document.findOne(
             {
-                s3Key,
-                uploadStatus: 'pending'
+                s3Key
             },
-            {
-                $set: {
-                    uploadStatus: 'uploaded'
-                }
-            },
-            {
-                new: true,
-                session
-            }
+
         )
             .populate('uploadedBy', 'firstName lastName email');
 

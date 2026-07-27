@@ -19,6 +19,13 @@ router.post('/presigned-upload-url', verifyToken, authorize('upload_document'), 
     return success(res, { documentId, url, key }, 'Pre-Signed upload url is genrated succesfully')
 }));
 
+router.post('/multipart/complete', verifyToken, asyncHandler(async function _multiPartUpload(req, res, next) {
+    const completedDocData = req.body;
+
+    await require('../controllers/document/multiPartUploadCompleted')(req.tenant, completedDocData);
+    return success(res, {}, 'Upload completed');
+}));
+
 router.post('/:id/complete', verifyToken, authorize('upload_document'), validate(paramIdValidator), asyncHandler(async function _uploadComplete(req, res, next) {
     const tenant = req.tenant;
     const documentId = req.params.id;
@@ -142,6 +149,45 @@ router.put('/:id/restore-folder', verifyToken, validate(paramIdValidator), async
     const folderId = req.params.id;
     const restoredFolder = await require('../controllers/document/restoreFolder')(folderId, req.tenant);
     return success(res, { restoredFolder }, 'Folder restored succesfully');
+}));
+
+//--------------------------------------validator----------------------------//remaingin------
+router.post('/initiate-upload', verifyToken, asyncHandler(async function _initiateMultiPartUpload(req, res, next) {
+    const docData = req.body;
+    const { documentId, uploadId, key, chunkSize, totalParts } = await require('../controllers/document/initiateMultipartUpload')(req.tenant, docData, req.user._id);
+    return success(res, { documentId, uploadId, key, chunkSize, totalParts }, 'Multi-Part Upload Intitiated');
+}));
+
+router.post('/multipart/upload-url', verifyToken, asyncHandler(async function _multiPartUplaod(req, res, next) {
+    const docData = req.body;
+    const url = await require('../controllers/document/generateMultipartUploadUrl')(req.tenant, docData);
+    return success(res, { url }, `${docData.partNumber} upload url`);
+}));
+
+router.get(
+    '/multipart/:id/status',
+    verifyToken,
+    validate(paramIdValidator),
+    asyncHandler(async function _getMultipartUploadStatus(req, res) {
+
+        const uploadedParts = await require('../controllers/document/getMultipartUploadStatus')(
+            req.tenant,
+            req.params.id
+        );
+
+        return success(
+            res,
+            { uploadedParts },
+            'Multipart upload status fetched successfully'
+        );
+
+    })
+);
+
+router.post('/multipart/abort', verifyToken, asyncHandler(async function _abortMultiPartUpload(req, res, next) {
+    const docData = req.body;
+    await require('../controllers/document/abortMultiPartUplaod')(req.tenant, docData);
+    return success(res, {}, `upload aborted Succesfully`);
 }));
 
 
