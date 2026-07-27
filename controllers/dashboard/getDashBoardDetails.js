@@ -1,17 +1,19 @@
 const getTenantModel = require('../../utils/getTenantModel');
+
 const documentSchema = require('../../models/tenant/documentSchema');
-const userSchema = require('../../models/tenant/userSchema');
-const storageSchema = require('../../models/tenant/storageSchema');
+const folderSchema = require('../../models/tenant/folderSchema');
 const apiAnalyticsSchema = require('../../models/tenant/apiAnalyticsSchema');
+
 const plans = require('../../config/plans');
+
 const { getAnalyticsBucket } = require('../../services/analyticsService');
 
 module.exports = async function (tenant) {
 
-    const { dbName, _id: tenantId, currentPlan } = tenant;
+    const { dbName, currentPlan } = tenant;
 
     const Document = getTenantModel(dbName, 'Document', documentSchema);
-    const Storage = getTenantModel(dbName, 'Storage', storageSchema);
+    const Folder = getTenantModel(dbName, 'Folder', folderSchema);
     const ApiAnalytics = getTenantModel(dbName, 'ApiAnalytics', apiAnalyticsSchema);
 
     const lastSevenDays = new Date();
@@ -25,9 +27,59 @@ module.exports = async function (tenant) {
         analyticsFrom.setDate(analyticsFrom.getDate() - 29);
     }
 
-    const [storageDetails, docsAddedThisWeek] = await Promise.all([
+    const [documentStats, totalFolders, docsAddedThisWeek, apiAnalytics] = await Promise.all([
 
-        Storage.findOne({ tenantId }).lean(),
+        Document.aggregate([
+            {
+                $group: {
+                    _id: null,
+
+                    storageUsed: {
+                        $sum: {
+                            $cond: [
+                                {
+                                    $and: [
+                                        // { $eq: ['$isDeleted', false] },
+                                        { $eq: ['$uploadStatus', 'uploaded'] }
+                                    ]
+                                },
+                                '$size',
+                                0
+                            ]
+                        }
+                    },
+
+                    totalFiles: {
+                        $sum: {
+                            $cond: [
+                                {
+                                    $and: [
+                                        { $eq: ['$isDeleted', false] },
+                                        { $eq: ['$uploadStatus', 'uploaded'] }
+                                    ]
+                                },
+                                1,
+                                0
+                            ]
+                        }
+                    },
+
+                    trashedFiles: {
+                        $sum: {
+                            $cond: [
+                                { $eq: ['$isDeleted', true] },
+                                1,
+                                0
+                            ]
+                        }
+                    }
+                }
+            }
+        ]),
+
+        Folder.countDocuments({
+            isDeleted: false
+        }),
 
         Document.countDocuments({
             isDeleted: false,
@@ -35,18 +87,23 @@ module.exports = async function (tenant) {
             createdAt: {
                 $gte: lastSevenDays
             }
+        }),
+
+        ApiAnalytics.find({
+            date: {
+                $gte: analyticsFrom
+            }
         })
+            .sort({ date: 1 })
+            .lean()
+
     ]);
 
-    const apiAnalytics = await ApiAnalytics.find({
-        date: { $gte: analyticsFrom }
-    })
-        .sort({ date: -1 })
-        .limit(30)
-        .lean();
-
-    apiAnalytics.reverse();
-
+    const stats = documentStats[0] || {
+        storageUsed: 0,
+        totalFiles: 0,
+        trashedFiles: 0
+    };
 
     const totalApiRequests = apiAnalytics.reduce(
         (total, item) => total + item.requests,
@@ -54,11 +111,11 @@ module.exports = async function (tenant) {
     );
 
     return {
-        storageDetails: storageDetails || {
-            storageUsed: 0,
-            totalFiles: 0,
-            totalFolders: 0,
-            trashedFiles: 0
+        storageDetails: {
+            storageUsed: stats.storageUsed,
+            totalFiles: stats.totalFiles,
+            totalFolders,
+            trashedFiles: stats.trashedFiles
         },
         planDetails: plans[currentPlan],
         docsAddedThisWeek,

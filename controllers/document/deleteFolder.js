@@ -5,7 +5,6 @@ const withTransaction = require('../../utils/withTransaction');
 
 const folderSchema = require('../../models/tenant/folderSchema');
 const documentSchema = require('../../models/tenant/documentSchema');
-const storageSchema = require('../../models/tenant/storageSchema');
 
 const { ERROR_MESSAGE, STATUS_CODE } = require('../../utils/constant');
 const { emitToTenant } = require('../../socket/services/emitService');
@@ -16,11 +15,10 @@ module.exports = async function (folderId, tenant) {
     const { dbName, _id: tenantId } = tenant;
 
     const Folder = getTenantModel(dbName, 'Folder', folderSchema);
+
     const Document = getTenantModel(dbName, 'Document', documentSchema);
-    const Storage = getTenantModel(dbName, 'Storage', storageSchema);
 
     const folder = await withTransaction(async (session) => {
-
         const rootFolder = await Folder.findOneAndUpdate(
             {
                 _id: folderId,
@@ -39,14 +37,16 @@ module.exports = async function (folderId, tenant) {
             }
         );
 
-        if (!rootFolder) throw new createHttpError(STATUS_CODE.NOT_FOUND, ERROR_MESSAGE.FOLDER_NOT_FOUND);
-
-        let deletedFiles = 0;
-        let deletedFolders = 1;
+        if (!rootFolder) {
+            throw new createHttpError(
+                STATUS_CODE.NOT_FOUND,
+                ERROR_MESSAGE.FOLDER_NOT_FOUND
+            );
+        }
 
         async function softDeleteChild(parentId) {
 
-            const deletedDocs = await Document.updateMany(
+            await Document.updateMany(
                 {
                     folderId: parentId,
                     isDeleted: false
@@ -63,9 +63,7 @@ module.exports = async function (folderId, tenant) {
                 }
             );
 
-            deletedFiles += deletedDocs.modifiedCount;
-
-            const candidateFolders = await Folder.find(
+            const childFolders = await Folder.find(
                 {
                     parentFolderId: parentId,
                     isDeleted: false
@@ -76,11 +74,11 @@ module.exports = async function (folderId, tenant) {
                 }
             ).lean();
 
-            for (const candidate of candidateFolders) {
+            for (const child of childFolders) {
 
                 const claimed = await Folder.findOneAndUpdate(
                     {
-                        _id: candidate._id,
+                        _id: child._id,
                         isDeleted: false
                     },
                     {
@@ -100,37 +98,17 @@ module.exports = async function (folderId, tenant) {
                     continue;
                 }
 
-                deletedFolders++;
-
                 await softDeleteChild(claimed._id);
+
             }
         }
 
         await softDeleteChild(rootFolder._id);
 
-        await Storage.findOneAndUpdate(
-            {
-                tenantId
-            },
-            {
-                $inc: {
-                    totalFolders: -deletedFolders,
-                    totalFiles: -deletedFiles,
-                    trashedFiles: deletedFiles
-                },
-                $set: {
-                    lastStorageUpdatedAt: new Date()
-                }
-            },
-            {
-                session
-            }
-        );
-
         return rootFolder;
+
     });
 
     emitToTenant(tenantId, FOLDER_TRASHED);
-
     return folder;
 };

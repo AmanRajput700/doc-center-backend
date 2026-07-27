@@ -20,6 +20,35 @@ const errorHandler = require('./middleware/errorHandler');
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
+// app.use(
+//   cors({
+//     origin: (origin, callback) => {
+//       // Allow requests without Origin (Postman, mobile apps, health checks)
+//       if (!origin) {
+//         return callback(null, true);
+//       }
+
+//       // Allow localhost during development
+//       if (origin === "http://localhost:5173") {
+//         return callback(null, true);
+//       }
+
+//       // Allow doccenter.in and any HTTPS subdomain
+//       const allowedRegex = /^https:\/\/(?:[a-zA-Z0-9-]+\.)?doccenter\.in$/;
+
+//       if (allowedRegex.test(origin)) {
+//         return callback(null, true);
+//       }
+
+//       // Instead of throwing an error (which causes a 500 status), return false
+//       // to let the cors middleware handle the rejection properly.
+//       return callback(null, false);
+//     },
+//     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+//     credentials: true,
+//   })
+// );
+
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -28,8 +57,16 @@ app.use(
         return callback(null, true);
       }
 
-      // Allow localhost during development
+      // Allow localhost
       if (origin === "http://localhost:5173") {
+        return callback(null, true);
+      }
+
+      // Allow any tenant on nip.io
+      const nipIoRegex =
+        /^http:\/\/[a-zA-Z0-9-]+\.192\.168\.100\.99\.nip\.io:5173$/;
+
+      if (nipIoRegex.test(origin)) {
         return callback(null, true);
       }
 
@@ -40,8 +77,6 @@ app.use(
         return callback(null, true);
       }
 
-      // Instead of throwing an error (which causes a 500 status), return false
-      // to let the cors middleware handle the rejection properly.
       return callback(null, false);
     },
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
@@ -59,7 +94,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.get('/health', (req, res) => {
   res.status(200).json({
     status: "UP",
-    message: "Server is running V2",
+    message: "Server is running V3",
     timestamp: new Date().toISOString()
   });
 });

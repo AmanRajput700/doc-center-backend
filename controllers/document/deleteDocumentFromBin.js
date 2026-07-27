@@ -1,7 +1,6 @@
 const createHttpError = require('http-errors');
 
 const documentSchema = require('../../models/tenant/documentSchema');
-const storageSchema = require('../../models/tenant/storageSchema');
 
 const getTenantModel = require('../../utils/getTenantModel');
 const withTransaction = require('../../utils/withTransaction');
@@ -19,13 +18,12 @@ module.exports = async function (tenant, docId) {
 
     const Document = getTenantModel(dbName, 'Document', documentSchema);
 
-    const Storage = getTenantModel(dbName, 'Storage', storageSchema);
+    const doc = await Document.findOne({
+        _id: docId,
+        isDeleted: true
+    });
 
-    const doc = await Document.findOne({ _id: docId, isDeleted: true });
-
-    if (!doc)
-        throw new createHttpError(STATUS_CODE.NOT_FOUND, ERROR_MESSAGE.DOC_NOT_FOUND);
-
+    if (!doc) throw new createHttpError(STATUS_CODE.NOT_FOUND, ERROR_MESSAGE.DOC_NOT_FOUND);
 
     try {
         await deleteObject(doc.s3Key);
@@ -33,33 +31,36 @@ module.exports = async function (tenant, docId) {
         throw new createHttpError(STATUS_CODE.INTERNAL_SERVER_ERROR, 'Unable to permanently delete document.');
     }
 
-    // MongoDB transaction
-    const storage = await withTransaction(async (session) => {
-        await Document.findByIdAndDelete(doc._id, { session });
-        return await Storage.findOneAndUpdate(
-            {
-                tenantId
-            },
-            {
-                $inc: {
-                    storageUsed: -doc.size,
-                    trashedFiles: -1
-                },
-                $set: {
-                    lastStorageUpdatedAt: new Date()
-                }
-            },
-            {
-                new: true,
-                session
-            }
-        ).lean();
+    // Delete document
+    await withTransaction(async (session) => {
+        await Document.findByIdAndDelete(
+            doc._id,
+            { session }
+        );
     });
+
+    // Recalculate storage usage
+    const [storageStats] = await Document.aggregate([
+        {
+            $match: {
+                uploadStatus: 'uploaded',
+                isDeleted: false
+            }
+        },
+        {
+            $group: {
+                _id: null,
+                storageUsed: {
+                    $sum: '$size'
+                }
+            }
+        }
+    ]);
 
     await updateApiAnalytics({
         dbName,
         set: {
-            storageUsed: storage.storageUsed
+            storageUsed: storageStats?.storageUsed || 0
         }
     });
 

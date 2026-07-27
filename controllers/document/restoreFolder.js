@@ -5,7 +5,6 @@ const withTransaction = require('../../utils/withTransaction');
 
 const folderSchema = require('../../models/tenant/folderSchema');
 const documentSchema = require('../../models/tenant/documentSchema');
-const storageSchema = require('../../models/tenant/storageSchema');
 
 const { STATUS_CODE, ERROR_MESSAGE } = require('../../utils/constant');
 const { emitToTenant } = require('../../socket/services/emitService');
@@ -19,7 +18,6 @@ module.exports = async function (folderId, tenant) {
 
     const Folder = getTenantModel(dbName, 'Folder', folderSchema);
     const Document = getTenantModel(dbName, 'Document', documentSchema);
-    const Storage = getTenantModel(dbName, 'Storage', storageSchema);
 
     const cutoff = new Date(Date.now() - RETENTION_WINDOW_MS);
 
@@ -44,14 +42,15 @@ module.exports = async function (folderId, tenant) {
             }
         );
 
-        if (!folder) throw new createHttpError(STATUS_CODE.NOT_FOUND, ERROR_MESSAGE.FOLDER_NOT_FOUND);
-
-        let addedFiles = 0;
-        let addedFolders = 1;
+        if (!folder) {
+            throw new createHttpError(
+                STATUS_CODE.NOT_FOUND,
+                ERROR_MESSAGE.FOLDER_NOT_FOUND
+            );
+        }
 
         async function restoreChildren(parentId) {
-
-            const docs = await Document.updateMany(
+            await Document.updateMany(
                 {
                     folderId: parentId,
                     isDeleted: true,
@@ -69,8 +68,6 @@ module.exports = async function (folderId, tenant) {
                     session
                 }
             );
-
-            addedFiles += docs.modifiedCount;
 
             const childFolders = await Folder.find(
                 {
@@ -105,37 +102,12 @@ module.exports = async function (folderId, tenant) {
                     }
                 );
 
-                if (!restoredChild) {
-                    continue;
-                }
-
-                addedFolders++;
+                if (!restoredChild) continue;
 
                 await restoreChildren(restoredChild._id);
             }
         }
-
         await restoreChildren(folder._id);
-
-        await Storage.findOneAndUpdate(
-            {
-                tenantId
-            },
-            {
-                $inc: {
-                    totalFolders: addedFolders,
-                    totalFiles: addedFiles,
-                    trashedFiles: -addedFiles
-                },
-                $set: {
-                    lastStorageUpdatedAt: new Date()
-                }
-            },
-            {
-                session
-            }
-        );
-
         return folder;
     });
 

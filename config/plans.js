@@ -1,7 +1,7 @@
 const PLAN_DETAILS = {
 
     Free: {
-        storageLimit: 1024 * 1024 * 10, //1 GB
+        storageLimit: 1024 * 1024 * 1024 * 2, //1 GB
         maxUsers: 10
     },
 
